@@ -317,8 +317,152 @@
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--gold-pale); border-radius: 10px; }
 
-  @media (max-width: 760px) { .sidebar { width: 200px; } .page { padding: 20px; } .topbar { padding: 0 20px; } .stat-grid { grid-template-columns: 1fr 1fr; } }
-  @media (max-width: 540px)  { .sidebar { display: none; } .stat-grid { grid-template-columns: 1fr; } }
+  /* ── MOBILE BOTTOM NAV ── */
+  .mob-nav {
+    display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 90;
+    height: 66px; background: var(--ink);
+    border-top: 1px solid rgba(184,150,46,0.22);
+    align-items: center; justify-content: space-around; padding: 0 6px;
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.3);
+  }
+  .mob-nav-item {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 4px; flex: 1; height: 100%; cursor: pointer;
+    color: rgba(255,255,255,0.3); font-size: 9px; letter-spacing: 0.06em;
+    text-transform: uppercase; font-weight: 500; transition: var(--transition);
+    border-radius: 10px; padding: 6px 2px; -webkit-tap-highlight-color: transparent;
+    position: relative;
+  }
+  .mob-nav-item svg { width: 21px; height: 21px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; transition: var(--transition); }
+  .mob-nav-item.active { color: var(--gold-light); }
+  .mob-nav-item.active svg { stroke: var(--gold-light); }
+  .mob-nav-item.active::before {
+    content: ''; position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
+    width: 28px; height: 2px; background: var(--gold); border-radius: 2px;
+  }
+  .mob-nav-signout svg { stroke: rgba(255,100,100,0.45); }
+  .mob-nav-signout { color: rgba(255,100,100,0.4); }
+
+  /* ── MOBILE TOPBAR ── */
+  .mob-topbar {
+    display: none; height: 56px; background: var(--ink);
+    border-bottom: 1px solid rgba(184,150,46,0.18);
+    align-items: center; justify-content: space-between;
+    padding: 0 16px; flex-shrink: 0;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .mob-topbar-left { display: flex; flex-direction: column; }
+  .mob-topbar-logo { font-family: var(--font-display); font-size: 17px; font-weight: 600; color: var(--gold-pale); letter-spacing: 0.01em; line-height: 1.2; }
+  .mob-topbar-logo span { color: var(--gold-light); font-style: italic; }
+  .mob-page-label { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(184,150,46,0.5); font-weight: 500; margin-top: 1px; }
+  .mob-topbar-right { display: flex; align-items: center; gap: 10px; }
+  .mob-avatar { width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid rgba(184,150,46,0.4); object-fit: cover; }
+  .mob-avatar-placeholder {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(184,150,46,0.15); border: 1.5px solid rgba(184,150,46,0.4);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-size: 13px; font-weight: 600; color: var(--gold-light);
+  }
+
+  /* ── TABLET ── */
+  @media (max-width: 860px) {
+    .sidebar { width: 210px; }
+    .page { padding: 24px; }
+    .topbar { padding: 0 24px; }
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+    .topbar-date { display: none; }
+  }
+
+  /* ── MOBILE ── */
+  @media (max-width: 600px) {
+    .sidebar { display: none !important; }
+    .topbar  { display: none !important; }
+    .mob-nav    { display: flex; }
+    .mob-topbar { display: flex; }
+    #app { flex-direction: column; }
+    .main { flex-direction: column; overflow: hidden; }
+
+    /* Pages */
+    .page { padding: 14px 14px 84px; }
+    .section-title { font-size: 22px; }
+    .section-head  { margin-bottom: 16px; }
+
+    /* Stat cards — 2 col compact */
+    .stat-grid { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+    .stat-card { padding: 14px 13px; border-radius: 12px; }
+    .stat-icon { width: 28px; height: 28px; border-radius: 6px; margin-bottom: 10px; }
+    .stat-icon svg { width: 13px; height: 13px; }
+    .stat-value { font-size: 20px; }
+    .stat-value .currency { font-size: 13px; }
+    .stat-label { font-size: 9px; letter-spacing: 0.08em; margin-bottom: 4px; }
+    .stat-sub   { font-size: 10px; margin-top: 4px; }
+
+    /* Panels */
+    .panel { border-radius: 12px; }
+    .panel-header { padding: 13px 15px; }
+    .panel-title  { font-size: 15px; }
+    .panel-body   { padding: 14px; }
+
+    /* Forms — full width single column */
+    .form-row { grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px; }
+    .form-input, .form-select { height: 48px; font-size: 15px; padding: 0 14px; border-radius: 10px; }
+    .form-label { font-size: 10px; }
+    .btn-primary { width: 100%; padding: 14px; font-size: 12px; border-radius: 10px; display: block; text-align: center; }
+
+    /* Hearings */
+    .hearings-grid { grid-template-columns: 1fr; gap: 10px; }
+    .hearing-card  { padding: 14px 15px; }
+
+    /* Ledger — hide table, show cards */
+    .table-wrap table  { display: none; }
+    #ledger-cards { display: flex !important; flex-direction: column; gap: 9px; padding: 12px 14px 4px; }
+    .ledger-mobile-card {
+      background: var(--cream); border: 1px solid var(--border);
+      border-radius: 10px; padding: 13px 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .lmc-badge { flex-shrink: 0; }
+    .lmc-body  { flex: 1; min-width: 0; }
+    .lmc-particulars { font-size: 13px; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lmc-date  { font-size: 10.5px; color: var(--ink-muted); margin-top: 2px; }
+    .lmc-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .lmc-amount { font-family: var(--font-display); font-size: 15px; font-weight: 700; }
+
+    /* Totals bar stack */
+    .totals-bar { flex-direction: column; margin: 10px 14px !important; }
+    .total-cell { border-right: none !important; border-bottom: 1px solid var(--border); padding: 11px 14px; display: flex; align-items: center; justify-content: space-between; flex: none; }
+    .total-cell:last-child { border-bottom: none; }
+    .total-cell-value { font-size: 18px; }
+
+    /* PDF bar */
+    .pdf-export-bar { flex-direction: column; align-items: flex-start; gap: 14px; padding: 16px 14px; }
+    .pdf-export-bar::after { display: none; }
+    .pdf-fields { flex-direction: column; width: 100%; gap: 10px; }
+    .pdf-input  { width: 100% !important; height: 46px; font-size: 15px; }
+    .btn-pdf    { width: 100%; height: 46px; justify-content: center; font-size: 12px; border-radius: 10px; }
+    .pdf-form-group { width: 100%; }
+
+    /* Expenses */
+    .expense-item  { padding: 12px 13px; border-radius: 10px; }
+    .expense-amount { font-size: 15px; }
+    .expense-name  { font-size: 13px; }
+    .delete-btn { width: 32px; height: 32px; font-size: 16px; }
+
+    /* Save toast above bottom nav */
+    .save-indicator { bottom: 76px; right: 14px; font-size: 11px; }
+
+    /* Auth & landing mobile */
+    .auth-card { padding: 32px 22px; border-radius: 16px; }
+    .auth-heading { font-size: 26px; }
+    .auth-desc { font-size: 12px; margin-bottom: 28px; }
+    .landing-logo { font-size: clamp(26px, 7vw, 44px); padding: 0 20px; }
+    .landing-tagline { font-size: 10px; letter-spacing: 0.12em; padding: 0 20px; }
+    .lc-tl, .lc-tr, .lc-bl, .lc-br { width: 36px; height: 36px; }
+    .lc-tl { top: 16px; left: 16px; }
+    .lc-tr { top: 16px; right: 16px; }
+    .lc-bl { bottom: 16px; left: 16px; }
+    .lc-br { bottom: 16px; right: 16px; }
+  }
 </style>
 </head>
 <body>
@@ -372,6 +516,38 @@
 
 <!-- ════ APP ════ -->
 <div id="app">
+
+  <!-- MOBILE TOPBAR -->
+  <div class="mob-topbar">
+    <div class="mob-topbar-left">
+      <div class="mob-topbar-logo">B.K Jain <span>&amp;</span> Associates</div>
+      <div class="mob-page-label" id="mob-page-label">Overview</div>
+    </div>
+    <div class="mob-topbar-right">
+      <div id="mob-avatar-wrap"></div>
+    </div>
+  </div>
+
+  <!-- MOBILE BOTTOM NAV -->
+  <nav class="mob-nav">
+    <div class="mob-nav-item active" id="mob-nav-dashboard" onclick="mobNav('dashboard','mob-nav-dashboard','Overview')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+      Home
+    </div>
+    <div class="mob-nav-item" id="mob-nav-ledger" onclick="mobNav('ledger','mob-nav-ledger','Fee Ledger')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 10h16M4 14h10M4 18h7"/></svg>
+      Ledger
+    </div>
+    <div class="mob-nav-item" id="mob-nav-expenses" onclick="mobNav('expenses','mob-nav-expenses','Expenses')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      Expenses
+    </div>
+    <div class="mob-nav-item mob-nav-signout" onclick="signOut()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sign Out
+    </div>
+  </nav>
+
   <aside class="sidebar">
     <div class="sidebar-header">
       <div class="sidebar-logo">B.K Jain <span>&</span> Associates</div>
@@ -510,6 +686,8 @@
             </table>
             <div id="ledger-empty" class="empty-state" style="display:none;"><div class="empty-icon">📋</div><div class="empty-text">No entries yet</div><div class="empty-sub">Add your first ledger entry above</div></div>
           </div>
+          <!-- Mobile card view for ledger (hidden on desktop) -->
+          <div id="ledger-cards" style="display:none;"></div>
           <div class="totals-bar" id="ledger-totals" style="margin:16px;display:none;">
             <div class="total-cell"><div class="total-cell-label">Total Credits</div><div class="total-cell-value credit-value" id="tot-credit">₹0</div></div>
             <div class="total-cell"><div class="total-cell-label">Total Debits</div><div class="total-cell-value debit-value" id="tot-debit">₹0</div></div>
@@ -695,12 +873,22 @@
   // ── SETUP USER UI ──
   function setupUser(user) {
     document.getElementById('user-name').textContent = user.displayName || user.email || 'User';
+    const initials = (user.displayName || 'U').split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
+    // Desktop sidebar avatar
     const wrap = document.getElementById('user-avatar-wrap');
     if (user.photoURL) {
       wrap.innerHTML = `<img src="${user.photoURL}" class="user-avatar" alt="Avatar">`;
     } else {
-      const initials = (user.displayName || 'U').split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
       wrap.innerHTML = `<div class="user-avatar-placeholder">${initials}</div>`;
+    }
+    // Mobile topbar avatar
+    const mobWrap = document.getElementById('mob-avatar-wrap');
+    if (mobWrap) {
+      if (user.photoURL) {
+        mobWrap.innerHTML = `<img src="${user.photoURL}" class="mob-avatar" alt="Avatar">`;
+      } else {
+        mobWrap.innerHTML = `<div class="mob-avatar-placeholder">${initials}</div>`;
+      }
     }
   }
 
@@ -717,12 +905,23 @@
 
   // ── NAVIGATION ──
   const titles = { dashboard: 'Dashboard', ledger: 'Fee Ledger', expenses: 'Expense Tracker' };
-  function showPage(id, el) {
+  const mobLabels = { dashboard: 'Overview', ledger: 'Fee Ledger', expenses: 'Expenses' };
+  function mobNav(id, mobNavId, label) {
+    // update mobile bottom nav active state
+    document.querySelectorAll('.mob-nav-item').forEach(n => n.classList.remove('active'));
+    const mEl = document.getElementById(mobNavId);
+    if (mEl) mEl.classList.add('active');
+    showPage(id, null, label);
+  }
+  function showPage(id, el, mobLabel) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById('page-' + id).classList.add('active');
     if (el) el.classList.add('active');
     document.getElementById('topbar-title').textContent = titles[id] || 'Dashboard';
+    const lbl = mobLabel || mobLabels[id] || 'Dashboard';
+    const mobLabelEl = document.getElementById('mob-page-label');
+    if (mobLabelEl) mobLabelEl.textContent = lbl;
     renderAll();
   }
 
@@ -786,10 +985,28 @@
     const tbody = document.getElementById('ledger-body');
     const empty = document.getElementById('ledger-empty');
     const totals = document.getElementById('ledger-totals');
-    if (!ledger.length) { tbody.innerHTML = ''; empty.style.display = 'block'; totals.style.display = 'none'; return; }
+    const cards  = document.getElementById('ledger-cards');
+    if (!ledger.length) {
+      tbody.innerHTML = ''; if(cards) cards.innerHTML = '';
+      empty.style.display = 'block'; totals.style.display = 'none'; return;
+    }
     empty.style.display = 'none'; totals.style.display = 'flex';
     const sorted = [...ledger].sort((a,b) => new Date(b.date) - new Date(a.date));
     tbody.innerHTML = sorted.map(e => `<tr><td>${fmtDate(e.date)}</td><td><span class="td-type-badge ${e.type==='Credit'?'badge-credit':'badge-debit'}">${e.type}</span></td><td>${e.particulars}</td><td class="${e.type==='Credit'?'td-credit':'td-debit'}">₹${fmt(e.amount)}</td><td><button class="delete-btn" onclick="deleteLedger(${e.id})">×</button></td></tr>`).join('');
+    if (cards) {
+      cards.innerHTML = sorted.map(e => `
+        <div class="ledger-mobile-card">
+          <div class="lmc-badge"><span class="td-type-badge ${e.type==='Credit'?'badge-credit':'badge-debit'}">${e.type}</span></div>
+          <div class="lmc-body">
+            <div class="lmc-particulars">${e.particulars}</div>
+            <div class="lmc-date">${fmtDate(e.date)}</div>
+          </div>
+          <div class="lmc-right">
+            <div class="lmc-amount ${e.type==='Credit'?'td-credit':'td-debit'}">₹${fmt(e.amount)}</div>
+            <button class="delete-btn" onclick="deleteLedger(${e.id})">×</button>
+          </div>
+        </div>`).join('');
+    }
     const credits = ledger.filter(e => e.type==='Credit').reduce((s,e) => s+Number(e.amount), 0);
     const debits  = ledger.filter(e => e.type==='Debit').reduce((s,e)  => s+Number(e.amount), 0);
     document.getElementById('tot-credit').textContent = '₹' + fmt(credits);
