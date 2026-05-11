@@ -7,722 +7,348 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --gold:#B8962E;--gold-light:#D4AF5A;--gold-pale:#F0E0B0;--gold-faint:#FBF5E6;
+  --cream:#FFFDF7;--cream-dark:#F5EDD8;--white:#FFFFFF;
+  --ink:#1A1408;--ink-mid:#3D3015;--ink-soft:#6B5A35;--ink-muted:#9B8A65;
+  --border:rgba(184,150,46,0.2);--border-s:rgba(184,150,46,0.45);
+  --sh-sm:0 2px 12px rgba(180,140,30,0.10);--sh-md:0 6px 28px rgba(180,140,30,0.14);
+  --r:14px;--rs:8px;--font-d:'Cormorant Garamond',Georgia,serif;--font-b:'Jost',sans-serif;
+  --tr:all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+html,body{height:100%;font-family:var(--font-b);background:var(--cream);color:var(--ink);overflow-x:hidden;}
 
-  :root {
-    --gold: #B8962E;
-    --gold-light: #D4AF5A;
-    --gold-pale: #F0E0B0;
-    --gold-faint: #FBF5E6;
-    --cream: #FFFDF7;
-    --cream-dark: #F5EDD8;
-    --white: #FFFFFF;
-    --ink: #1A1408;
-    --ink-mid: #3D3015;
-    --ink-soft: #6B5A35;
-    --ink-muted: #9B8A65;
-    --border: rgba(184, 150, 46, 0.2);
-    --border-strong: rgba(184, 150, 46, 0.45);
-    --shadow-sm: 0 2px 12px rgba(180, 140, 30, 0.10);
-    --shadow-md: 0 6px 28px rgba(180, 140, 30, 0.14);
-    --shadow-lg: 0 16px 56px rgba(180, 140, 30, 0.18);
-    --r: 14px; --r-sm: 8px;
-    --font-display: 'Cormorant Garamond', Georgia, serif;
-    --font-body: 'Jost', sans-serif;
-    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
+/* SCREENS */
+.screen{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.screen.hidden{display:none!important;}
 
-  html, body { height: 100%; font-family: var(--font-body); background: var(--cream); color: var(--ink); overflow-x: hidden; }
+/* LANDING */
+#landing{background:linear-gradient(160deg,#FFFDF7 0%,#F5EDD8 45%,#EDD99A 100%);transition:opacity 0.7s ease,transform 0.7s ease;}
+#landing.exit{opacity:0;transform:translateY(-24px);pointer-events:none;}
+.l-orn{width:64px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto 30px;opacity:0;animation:fU 0.8s 0.2s ease forwards;}
+.l-logo{font-family:var(--font-d);font-size:clamp(30px,6vw,68px);font-weight:600;color:var(--ink);text-align:center;line-height:1.15;opacity:0;animation:fU 0.9s 0.4s ease forwards;}
+.l-logo span{color:var(--gold);font-style:italic;}
+.l-rule{width:80px;height:1px;background:var(--gold);margin:24px auto;opacity:0;animation:fU 0.8s 0.7s ease forwards;}
+.l-tag{font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:var(--ink-soft);text-align:center;opacity:0;animation:fU 0.8s 0.9s ease forwards;}
+.l-est{font-family:var(--font-d);font-size:14px;color:var(--ink-muted);letter-spacing:0.12em;margin-top:5px;text-align:center;opacity:0;animation:fU 0.8s 1.0s ease forwards;}
+.l-btn{margin-top:46px;padding:14px 44px;background:var(--gold);color:#fff;border:none;border-radius:2px;font-family:var(--font-b);font-size:12px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;opacity:0;animation:fU 0.8s 1.2s ease forwards;transition:var(--tr);box-shadow:0 4px 20px rgba(184,150,46,0.35);}
+.l-btn:hover{background:var(--gold-light);transform:translateY(-2px);}
+.lc{position:absolute;width:54px;height:54px;border-color:var(--gold-pale);border-style:solid;opacity:0;animation:fI 1.4s 1.4s ease forwards;}
+.lc-tl{top:26px;left:26px;border-width:1px 0 0 1px;}.lc-tr{top:26px;right:26px;border-width:1px 1px 0 0;}
+.lc-bl{bottom:26px;left:26px;border-width:0 0 1px 1px;}.lc-br{bottom:26px;right:26px;border-width:0 1px 1px 0;}
 
-  /* ── SHARED SCREEN ── */
-  .screen {
-    position: fixed; inset: 0; z-index: 100;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    transition: opacity 0.7s ease, transform 0.7s ease;
-  }
-  .screen.hidden { opacity: 0; transform: translateY(-20px); pointer-events: none; display: none; }
-  .screen.exit   { opacity: 0; transform: translateY(-20px); pointer-events: none; }
+/* AUTH */
+#auth-screen{background:var(--ink);}
+.a-glow{position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(184,150,46,0.08) 0%,transparent 70%);pointer-events:none;}
+.a-card{background:rgba(255,255,255,0.04);border:1px solid rgba(184,150,46,0.2);border-radius:20px;padding:46px 42px;width:420px;max-width:92vw;text-align:center;position:relative;box-shadow:0 32px 80px rgba(0,0,0,0.5);animation:fU 0.5s ease;}
+.a-card::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:80px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.a-firm{font-family:var(--font-d);font-size:22px;font-weight:600;color:var(--gold-pale);margin-bottom:4px;}
+.a-firm span{color:var(--gold-light);font-style:italic;}
+.a-sub{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(184,150,46,0.5);margin-bottom:30px;}
+.a-div{display:flex;align-items:center;gap:12px;margin-bottom:22px;}
+.a-div-l{flex:1;height:1px;background:rgba(255,255,255,0.07);}
+.a-div-t{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.2);}
+.a-head{font-family:var(--font-d);font-size:29px;font-weight:600;color:var(--cream);margin-bottom:9px;}
+.a-desc{font-size:13px;color:rgba(255,255,255,0.35);line-height:1.6;margin-bottom:30px;}
+.g-btn{display:flex;align-items:center;justify-content:center;gap:13px;width:100%;padding:14px 22px;background:#fff;border:none;border-radius:10px;cursor:pointer;transition:var(--tr);box-shadow:0 4px 20px rgba(0,0,0,0.3);font-family:var(--font-b);font-size:14px;font-weight:500;color:#3C3C3C;}
+.g-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.4);}
+.g-btn:active{transform:scale(0.98);}
+.g-btn svg{width:20px;height:20px;flex-shrink:0;}
+.g-btn.loading{opacity:0.6;pointer-events:none;}
+.a-err{font-size:12px;color:#E57373;margin-top:13px;min-height:18px;line-height:1.5;}
+.a-note{font-size:11px;color:rgba(255,255,255,0.15);margin-top:18px;line-height:1.6;}
 
-  /* ── LANDING ── */
-  #landing { background: linear-gradient(160deg, #FFFDF7 0%, #F5EDD8 45%, #EDD99A 100%); }
-  .landing-ornament {
-    width: 64px; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    margin: 0 auto 32px; opacity: 0;
-    animation: fadeUp 0.8s 0.2s ease forwards;
-  }
-  .landing-logo {
-    font-family: var(--font-display); font-size: clamp(36px, 6vw, 68px); font-weight: 600;
-    letter-spacing: 0.02em; color: var(--ink); text-align: center; line-height: 1.15;
-    opacity: 0; animation: fadeUp 0.9s 0.4s ease forwards;
-  }
-  .landing-logo span { color: var(--gold); font-style: italic; }
-  .landing-rule { width: 80px; height: 1px; background: var(--gold); margin: 28px auto; opacity: 0; animation: fadeUp 0.8s 0.7s ease forwards; }
-  .landing-tagline { font-size: 13px; font-weight: 400; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-soft); text-align: center; opacity: 0; animation: fadeUp 0.8s 0.9s ease forwards; }
-  .landing-est { font-family: var(--font-display); font-size: 14px; color: var(--ink-muted); letter-spacing: 0.12em; margin-top: 6px; text-align: center; opacity: 0; animation: fadeUp 0.8s 1.0s ease forwards; }
-  .landing-btn {
-    margin-top: 52px; padding: 14px 44px; background: var(--gold); color: var(--white);
-    border: none; border-radius: 2px; font-family: var(--font-body); font-size: 12px; font-weight: 500;
-    letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer;
-    opacity: 0; animation: fadeUp 0.8s 1.2s ease forwards;
-    transition: var(--transition); box-shadow: 0 4px 20px rgba(184,150,46,0.35);
-  }
-  .landing-btn:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(184,150,46,0.4); }
-  .landing-corner { position: absolute; width: 60px; height: 60px; border-color: var(--gold-pale); border-style: solid; opacity: 0; animation: fadeIn 1.4s 1.4s ease forwards; }
-  .lc-tl { top: 32px; left: 32px; border-width: 1px 0 0 1px; }
-  .lc-tr { top: 32px; right: 32px; border-width: 1px 1px 0 0; }
-  .lc-bl { bottom: 32px; left: 32px; border-width: 0 0 1px 1px; }
-  .lc-br { bottom: 32px; right: 32px; border-width: 0 1px 1px 0; }
+/* LOADING */
+#loading-screen{background:var(--ink);}
+.ld-ring{width:48px;height:48px;border-radius:50%;border:2px solid rgba(184,150,46,0.15);border-top-color:var(--gold);animation:spin 0.8s linear infinite;margin-bottom:22px;}
+.ld-txt{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(184,150,46,0.5);}
 
-  /* ── AUTH SCREEN ── */
-  #auth-screen { background: var(--ink); }
-  #auth-screen .lc-tl, #auth-screen .lc-tr, #auth-screen .lc-bl, #auth-screen .lc-br { border-color: rgba(184,150,46,0.2); animation: fadeIn 0.6s ease forwards; }
-  .auth-glow {
-    position: absolute; width: 400px; height: 400px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(184,150,46,0.08) 0%, transparent 70%);
-    top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none;
-  }
-  .auth-card {
-    background: rgba(255,255,255,0.04); border: 1px solid rgba(184,150,46,0.2);
-    border-radius: 20px; padding: 52px 48px; width: 420px; max-width: 90vw;
-    text-align: center; position: relative;
-    box-shadow: 0 32px 80px rgba(0,0,0,0.5);
-    animation: fadeUp 0.5s ease forwards;
-  }
-  .auth-card::before {
-    content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-    width: 80px; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    border-radius: 1px;
-  }
-  .auth-firm {
-    font-family: var(--font-display); font-size: 24px; font-weight: 600;
-    color: var(--gold-pale); letter-spacing: 0.02em; margin-bottom: 4px;
-  }
-  .auth-firm span { color: var(--gold-light); font-style: italic; }
-  .auth-subtitle { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(184,150,46,0.5); margin-bottom: 36px; }
-  .auth-divider { display: flex; align-items: center; gap: 12px; margin: 0 0 28px; }
-  .auth-divider-line { flex: 1; height: 1px; background: rgba(255,255,255,0.07); }
-  .auth-divider-text { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.2); }
-  .auth-heading {
-    font-family: var(--font-display); font-size: 32px; font-weight: 600;
-    color: var(--cream); line-height: 1.2; margin-bottom: 10px;
-  }
-  .auth-desc { font-size: 13px; color: rgba(255,255,255,0.35); line-height: 1.6; margin-bottom: 36px; }
+@keyframes fU{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fI{from{opacity:0;}to{opacity:0.7;}}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes pgIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 
-  .google-btn {
-    display: flex; align-items: center; justify-content: center; gap: 14px;
-    width: 100%; padding: 14px 24px;
-    background: var(--white); border: none; border-radius: 10px;
-    cursor: pointer; transition: var(--transition);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    font-family: var(--font-body); font-size: 14px; font-weight: 500;
-    color: #3C3C3C; letter-spacing: 0.02em;
-  }
-  .google-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.4); background: #F8F8F8; }
-  .google-btn:active { transform: scale(0.98); }
-  .google-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
-  .auth-note { font-size: 11px; color: rgba(255,255,255,0.18); margin-top: 22px; line-height: 1.6; }
-  .auth-error { font-size: 12px; color: #E57373; margin-top: 16px; min-height: 18px; }
-  .google-btn.loading { opacity: 0.6; pointer-events: none; }
+/* APP */
+#app{display:none;flex-direction:column;min-height:100vh;}
+#app.show{display:flex;}
 
-  /* ── LOADING SCREEN ── */
-  #loading-screen { background: var(--ink); }
-  .loader-ring {
-    width: 48px; height: 48px; border-radius: 50%;
-    border: 2px solid rgba(184,150,46,0.15);
-    border-top-color: var(--gold);
-    animation: spin 0.8s linear infinite;
-    margin-bottom: 24px;
-  }
-  .loader-text { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(184,150,46,0.5); }
+/* MOBILE TOPBAR */
+.m-top{display:none;height:56px;background:var(--ink);border-bottom:1px solid rgba(184,150,46,0.2);align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;position:sticky;top:0;z-index:50;}
+.m-top-logo{font-family:var(--font-d);font-size:17px;font-weight:600;color:var(--gold-pale);}
+.m-top-logo span{color:var(--gold-light);font-style:italic;}
+.m-top-lbl{font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(184,150,46,0.5);margin-top:1px;}
+.m-av{width:32px;height:32px;border-radius:50%;border:1.5px solid rgba(184,150,46,0.4);object-fit:cover;}
+.m-av-ph{width:32px;height:32px;border-radius:50%;background:rgba(184,150,46,0.15);border:1.5px solid rgba(184,150,46,0.4);display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-size:13px;font-weight:600;color:var(--gold-light);}
 
-  @keyframes fadeUp  { from { opacity:0; transform:translateY(20px);  } to { opacity:1; transform:translateY(0); } }
-  @keyframes fadeIn  { from { opacity:0; } to { opacity:0.7; } }
-  @keyframes spin    { to { transform: rotate(360deg); } }
+/* MOBILE BOTTOM NAV */
+.m-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:90;height:63px;background:var(--ink);border-top:1px solid rgba(184,150,46,0.2);align-items:center;justify-content:space-around;padding:0 4px;box-shadow:0 -6px 22px rgba(0,0,0,0.25);}
+.mn-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;flex:1;height:100%;cursor:pointer;color:rgba(255,255,255,0.3);font-size:9px;letter-spacing:0.05em;text-transform:uppercase;font-weight:500;transition:var(--tr);-webkit-tap-highlight-color:transparent;position:relative;padding:4px 2px;}
+.mn-item svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+.mn-item.active{color:var(--gold-light);}
+.mn-item.active::after{content:'';position:absolute;top:4px;left:50%;transform:translateX(-50%);width:22px;height:2px;background:var(--gold);border-radius:2px;}
+.mn-so{color:rgba(255,100,100,0.4);}
 
-  /* ── APP SHELL ── */
-  #app { display: none; min-height: 100vh; }
-  #app.visible { display: flex; }
+/* APP BODY */
+.app-body{display:flex;flex:1;min-height:0;}
 
-  /* ── SIDEBAR ── */
-  .sidebar { width: 240px; min-height: 100vh; background: var(--ink); display: flex; flex-direction: column; flex-shrink: 0; position: sticky; top: 0; height: 100vh; }
-  .sidebar-header { padding: 36px 28px 28px; border-bottom: 1px solid rgba(255,255,255,0.06); }
-  .sidebar-logo { font-family: var(--font-display); font-size: 19px; font-weight: 600; color: var(--gold-pale); line-height: 1.3; letter-spacing: 0.01em; }
-  .sidebar-logo span { color: var(--gold-light); font-style: italic; }
-  .sidebar-sub { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.28); margin-top: 6px; }
-  .sidebar-nav { padding: 24px 16px; flex: 1; display: flex; flex-direction: column; gap: 4px; }
-  .nav-label { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.2); padding: 0 12px; margin: 12px 0 6px; }
-  .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: var(--r-sm); cursor: pointer; color: rgba(255,255,255,0.45); font-size: 13.5px; font-weight: 400; letter-spacing: 0.01em; transition: var(--transition); border: 1px solid transparent; }
-  .nav-item:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.75); }
-  .nav-item.active { background: rgba(184,150,46,0.12); color: var(--gold-pale); border-color: rgba(184,150,46,0.25); }
-  .nav-icon { width: 18px; height: 18px; opacity: 0.8; flex-shrink: 0; }
+/* SIDEBAR */
+.sb{width:238px;background:var(--ink);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;}
+.sb-h{padding:32px 24px 24px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.sb-logo{font-family:var(--font-d);font-size:18px;font-weight:600;color:var(--gold-pale);line-height:1.3;}
+.sb-logo span{color:var(--gold-light);font-style:italic;}
+.sb-s{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin-top:5px;}
+.sb-nav{padding:18px 13px;flex:1;display:flex;flex-direction:column;gap:3px;}
+.sb-lbl{font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.2);padding:0 10px;margin:9px 0 4px;}
+.ni{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:var(--rs);cursor:pointer;color:rgba(255,255,255,0.45);font-size:13.5px;transition:var(--tr);border:1px solid transparent;}
+.ni:hover{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.75);}
+.ni.active{background:rgba(184,150,46,0.12);color:var(--gold-pale);border-color:rgba(184,150,46,0.25);}
+.ni-icon{width:17px;height:17px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.sb-u{padding:13px 17px;border-top:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:10px;}
+.u-av{width:32px;height:32px;border-radius:50%;border:1.5px solid rgba(184,150,46,0.4);object-fit:cover;flex-shrink:0;}
+.u-av-ph{width:32px;height:32px;border-radius:50%;background:rgba(184,150,46,0.15);border:1.5px solid rgba(184,150,46,0.4);display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-size:13px;font-weight:600;color:var(--gold-light);flex-shrink:0;}
+.u-info{flex:1;min-width:0;}
+.u-name{font-size:12px;font-weight:500;color:rgba(255,255,255,0.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.u-role{font-size:9.5px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(184,150,46,0.5);}
+.so-btn{width:28px;height:28px;background:none;border:1px solid rgba(255,255,255,0.1);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--tr);color:rgba(255,255,255,0.3);flex-shrink:0;}
+.so-btn:hover{background:rgba(255,80,80,0.1);border-color:rgba(255,80,80,0.3);color:#E57373;}
+.so-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
 
-  /* User Profile in Sidebar */
-  .sidebar-user {
-    padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.06);
-    display: flex; align-items: center; gap: 12px;
-  }
-  .user-avatar {
-    width: 34px; height: 34px; border-radius: 50%;
-    border: 1.5px solid rgba(184,150,46,0.4); object-fit: cover; flex-shrink: 0;
-  }
-  .user-avatar-placeholder {
-    width: 34px; height: 34px; border-radius: 50%;
-    background: rgba(184,150,46,0.15); border: 1.5px solid rgba(184,150,46,0.4);
-    display: flex; align-items: center; justify-content: center;
-    font-family: var(--font-display); font-size: 14px; font-weight: 600; color: var(--gold-light);
-    flex-shrink: 0;
-  }
-  .user-info { flex: 1; min-width: 0; }
-  .user-name { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .user-role { font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(184,150,46,0.5); margin-top: 1px; }
-  .signout-btn {
-    width: 28px; height: 28px; background: none; border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    transition: var(--transition); color: rgba(255,255,255,0.3); flex-shrink: 0;
-  }
-  .signout-btn:hover { background: rgba(255,80,80,0.1); border-color: rgba(255,80,80,0.3); color: #E57373; }
-  .signout-btn svg { width: 13px; height: 13px; }
+/* MAIN */
+.main{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--cream);}
+.topbar{height:62px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 32px;flex-shrink:0;}
+.tb-title{font-family:var(--font-d);font-size:22px;font-weight:500;color:var(--ink);}
+.tb-date{font-size:12px;color:var(--ink-muted);letter-spacing:0.06em;}
+.tb-badge{display:flex;align-items:center;gap:7px;padding:5px 12px;background:var(--gold-faint);border:1px solid var(--border);border-radius:100px;}
+.bd{width:7px;height:7px;border-radius:50%;background:var(--gold);}
+.bt{font-size:11px;font-weight:500;color:var(--gold);letter-spacing:0.08em;text-transform:uppercase;}
+.page{display:none;flex:1;padding:32px;overflow-y:auto;animation:pgIn 0.3s ease;}
+.page.active{display:block;}
 
-  /* ── MAIN CONTENT ── */
-  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--cream); }
-  .topbar { height: 64px; background: var(--white); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 36px; flex-shrink: 0; }
-  .topbar-title { font-family: var(--font-display); font-size: 22px; font-weight: 500; color: var(--ink); letter-spacing: 0.01em; }
-  .topbar-date { font-size: 12px; color: var(--ink-muted); letter-spacing: 0.06em; }
-  .topbar-badge { display: flex; align-items: center; gap: 8px; padding: 6px 14px; background: var(--gold-faint); border: 1px solid var(--border); border-radius: 100px; }
-  .badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); }
-  .badge-text { font-size: 11px; font-weight: 500; color: var(--gold); letter-spacing: 0.08em; text-transform: uppercase; }
+/* SECTION HEAD */
+.sh{margin-bottom:22px;}
+.sh-eye{font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:5px;}
+.sh-title{font-family:var(--font-d);font-size:28px;font-weight:600;color:var(--ink);line-height:1.2;}
+.sh-rule{width:40px;height:2px;background:linear-gradient(90deg,var(--gold),transparent);margin-top:8px;}
 
-  .page { display: none; flex: 1; padding: 36px; overflow-y: auto; animation: pageFadeIn 0.35s ease; }
-  .page.active { display: block; }
-  @keyframes pageFadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+/* STAT CARDS */
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:15px;margin-bottom:28px;}
+.sc{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:20px 22px;position:relative;overflow:hidden;transition:var(--tr);}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold-light),var(--gold-pale));opacity:0;transition:opacity 0.3s;}
+.sc:hover{box-shadow:var(--sh-md);transform:translateY(-2px);border-color:var(--border-s);}
+.sc:hover::before{opacity:1;}
+.sc-icon{width:33px;height:33px;background:var(--gold-faint);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:13px;}
+.sc-icon svg{width:15px;height:15px;stroke:var(--gold);fill:none;stroke-width:1.8;}
+.sc-lbl{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-muted);font-weight:500;margin-bottom:6px;}
+.sc-val{font-family:var(--font-d);font-size:29px;font-weight:600;color:var(--ink);line-height:1;}
+.sc-val .cur{font-size:16px;font-weight:400;color:var(--ink-soft);margin-right:2px;}
+.sc-sub{font-size:11px;color:var(--ink-muted);margin-top:5px;}
 
-  /* ── SECTION HEADING ── */
-  .section-head { margin-bottom: 28px; }
-  .section-eyebrow { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); font-weight: 500; margin-bottom: 6px; }
-  .section-title { font-family: var(--font-display); font-size: 30px; font-weight: 600; color: var(--ink); letter-spacing: 0.01em; line-height: 1.2; }
-  .section-rule { width: 40px; height: 2px; background: linear-gradient(90deg, var(--gold), transparent); margin-top: 10px; }
+/* PANELS */
+.panel{background:var(--white);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh-sm);overflow:hidden;margin-bottom:20px;}
+.ph{padding:15px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,var(--gold-faint),var(--white));}
+.ph-title{font-family:var(--font-d);font-size:17px;font-weight:600;color:var(--ink);}
+.pb{padding:22px;}
 
-  /* ── STAT CARDS ── */
-  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; margin-bottom: 36px; }
-  .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 24px 26px; position: relative; overflow: hidden; transition: var(--transition); cursor: default; }
-  .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--gold-light), var(--gold-pale)); opacity: 0; transition: opacity 0.3s ease; }
-  .stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); border-color: var(--border-strong); }
-  .stat-card:hover::before { opacity: 1; }
-  .stat-icon { width: 36px; height: 36px; background: var(--gold-faint); border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
-  .stat-icon svg { width: 16px; height: 16px; stroke: var(--gold); fill: none; stroke-width: 1.8; }
-  .stat-label { font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-muted); font-weight: 500; margin-bottom: 8px; }
-  .stat-value { font-family: var(--font-display); font-size: 32px; font-weight: 600; color: var(--ink); line-height: 1; letter-spacing: -0.01em; }
-  .stat-value .currency { font-size: 18px; font-weight: 400; color: var(--ink-soft); margin-right: 2px; }
-  .stat-sub { font-size: 11px; color: var(--ink-muted); margin-top: 8px; }
+/* HEARINGS */
+.hg{display:grid;grid-template-columns:repeat(auto-fill,minmax(246px,1fr));gap:13px;}
+.hc{border:1px solid var(--border);border-radius:var(--rs);padding:15px 17px;background:var(--cream);transition:var(--tr);}
+.hc:hover{background:var(--white);box-shadow:var(--sh-sm);}
+.hc-date{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:5px;}
+.hc-case{font-family:var(--font-d);font-size:15px;font-weight:600;color:var(--ink);margin-bottom:3px;}
+.hc-court{font-size:12px;color:var(--ink-soft);}
+.hs{display:inline-block;padding:3px 9px;border-radius:100px;font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;margin-top:8px;}
+.hs-u{background:#FBF5E6;color:var(--gold);border:1px solid var(--border);}
+.hs-t{background:#FBF0F0;color:#B83030;border:1px solid rgba(184,48,48,0.2);}
 
-  /* ── PANELS ── */
-  .panel { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); box-shadow: var(--shadow-sm); overflow: hidden; margin-bottom: 24px; }
-  .panel-header { padding: 18px 26px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: linear-gradient(180deg, var(--gold-faint), var(--white)); }
-  .panel-title { font-family: var(--font-display); font-size: 17px; font-weight: 600; color: var(--ink); letter-spacing: 0.01em; }
-  .panel-body { padding: 26px; }
+/* FORMS */
+.fr{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:13px;margin-bottom:13px;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fl{font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-soft);font-weight:500;}
+.fi,.fs{height:40px;padding:0 13px;border:1px solid var(--border-s);border-radius:var(--rs);background:var(--cream);color:var(--ink);font-family:var(--font-b);font-size:13.5px;transition:var(--tr);outline:none;-webkit-appearance:none;appearance:none;}
+.fi:focus,.fs:focus{border-color:var(--gold);background:var(--white);box-shadow:0 0 0 3px rgba(184,150,46,0.12);}
+.fs{background-image:url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%239B8A65' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:34px;}
+.bp{padding:10px 24px;background:var(--gold);color:#fff;border:none;border-radius:var(--rs);font-family:var(--font-b);font-size:12px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;transition:var(--tr);box-shadow:0 3px 12px rgba(184,150,46,0.3);}
+.bp:hover{background:var(--gold-light);transform:translateY(-1px);}
 
-  /* ── HEARINGS ── */
-  .hearings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
-  .hearing-card { border: 1px solid var(--border); border-radius: var(--r-sm); padding: 18px 20px; background: var(--cream); transition: var(--transition); }
-  .hearing-card:hover { background: var(--white); box-shadow: var(--shadow-sm); border-color: var(--border-strong); }
-  .hearing-date { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-bottom: 6px; }
-  .hearing-case { font-family: var(--font-display); font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
-  .hearing-court { font-size: 12px; color: var(--ink-soft); }
-  .hearing-status { display: inline-block; margin-top: 10px; padding: 3px 10px; border-radius: 100px; font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; }
-  .status-upcoming { background: #FBF5E6; color: var(--gold); border: 1px solid var(--border); }
-  .status-today    { background: #FBF0F0; color: #B83030; border: 1px solid rgba(184,48,48,0.2); }
+/* TABLE */
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13.5px;}
+thead tr{background:var(--gold-faint);border-bottom:1px solid var(--border-s);}
+thead th{padding:11px 14px;text-align:left;font-size:10px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);}
+tbody tr{border-bottom:1px solid rgba(184,150,46,0.08);transition:background 0.15s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--gold-faint);}
+td{padding:11px 14px;color:var(--ink-mid);vertical-align:middle;}
+.tcr{color:#2A7A4A;font-weight:500;}.tdb{color:#B83030;font-weight:500;}
+.tbg{display:inline-block;padding:3px 9px;border-radius:100px;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;}
+.bcr{background:#EBF7F0;color:#2A7A4A;border:1px solid rgba(42,122,74,0.2);}
+.bdb{background:#FBF0F0;color:#B83030;border:1px solid rgba(184,48,48,0.2);}
+.db{width:28px;height:28px;border-radius:6px;background:none;border:1px solid rgba(184,48,48,0.2);color:#B83030;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--tr);font-size:15px;}
+.db:hover{background:#FBF0F0;}
 
-  /* ── FORMS ── */
-  .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 16px; }
-  .form-group { display: flex; flex-direction: column; gap: 6px; }
-  .form-label { font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); font-weight: 500; }
-  .form-input, .form-select { height: 40px; padding: 0 14px; border: 1px solid var(--border-strong); border-radius: var(--r-sm); background: var(--cream); color: var(--ink); font-family: var(--font-body); font-size: 13.5px; transition: var(--transition); outline: none; appearance: none; -webkit-appearance: none; }
-  .form-input:focus, .form-select:focus { border-color: var(--gold); background: var(--white); box-shadow: 0 0 0 3px rgba(184,150,46,0.12); }
-  .form-select { background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%239B8A65' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
-  .btn-primary { padding: 11px 28px; background: var(--gold); color: var(--white); border: none; border-radius: var(--r-sm); font-family: var(--font-body); font-size: 12px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; transition: var(--transition); box-shadow: 0 3px 12px rgba(184,150,46,0.3); }
-  .btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(184,150,46,0.38); }
-  .btn-primary:active { transform: scale(0.98); }
+/* TOTALS */
+.tbar{display:flex;border:1px solid var(--border-s);border-radius:var(--rs);overflow:hidden;margin-top:16px;}
+.tc{flex:1;padding:13px 18px;background:var(--gold-faint);border-right:1px solid var(--border);}
+.tc:last-child{border-right:none;background:var(--cream-dark);}
+.tc-l{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-muted);font-weight:500;margin-bottom:3px;}
+.tc-v{font-family:var(--font-d);font-size:20px;font-weight:700;}
+.vcr{color:#2A7A4A;}.vdb{color:#B83030;}.vnt{color:var(--gold);}
 
-  /* ── TABLES ── */
-  .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-  thead tr { background: var(--gold-faint); border-bottom: 1px solid var(--border-strong); }
-  thead th { padding: 12px 16px; text-align: left; font-size: 10px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); }
-  tbody tr { border-bottom: 1px solid rgba(184,150,46,0.08); transition: background 0.2s ease; }
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: var(--gold-faint); }
-  td { padding: 13px 16px; color: var(--ink-mid); vertical-align: middle; }
-  .td-credit { color: #2A7A4A; font-weight: 500; }
-  .td-debit  { color: #B83030; font-weight: 500; }
-  .td-type-badge { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
-  .badge-credit { background: #EBF7F0; color: #2A7A4A; border: 1px solid rgba(42,122,74,0.2); }
-  .badge-debit  { background: #FBF0F0; color: #B83030; border: 1px solid rgba(184,48,48,0.2); }
-  .delete-btn { width: 26px; height: 26px; border-radius: 6px; background: none; border: 1px solid rgba(184,48,48,0.2); color: #B83030; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition); font-size: 14px; }
-  .delete-btn:hover { background: #FBF0F0; }
+/* PDF BAR */
+.pdf-bar{display:flex;align-items:flex-end;gap:13px;flex-wrap:wrap;padding:17px 22px;background:linear-gradient(135deg,#1A1408,#2E2310);border-radius:var(--r);margin-bottom:20px;border:1px solid rgba(184,150,46,0.3);position:relative;overflow:hidden;}
+.pdf-bar::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold-light),var(--gold),transparent);}
+.pbi{flex-shrink:0;}
+.pbl{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(240,224,176,0.55);margin-bottom:5px;}
+.pbt{font-family:var(--font-d);font-size:16px;font-weight:600;color:var(--gold-pale);margin-bottom:2px;}
+.pbs{font-size:11px;color:rgba(240,224,176,0.4);}
+.pdf-fs{display:flex;gap:11px;align-items:flex-end;flex-wrap:wrap;flex:1;}
+.pfg{display:flex;flex-direction:column;gap:5px;}
+.pfl{font-size:9.5px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(240,224,176,0.5);font-weight:500;}
+.pfi{height:38px;padding:0 11px;background:rgba(255,255,255,0.06);border:1px solid rgba(184,150,46,0.3);border-radius:var(--rs);color:var(--gold-pale);font-family:var(--font-b);font-size:13px;outline:none;transition:var(--tr);color-scheme:dark;}
+.pfi:focus{border-color:var(--gold);background:rgba(184,150,46,0.1);}
+.bpdf{height:38px;padding:0 20px;background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--ink);border:none;border-radius:var(--rs);font-family:var(--font-b);font-size:11.5px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;transition:var(--tr);display:flex;align-items:center;gap:7px;white-space:nowrap;flex-shrink:0;box-shadow:0 4px 14px rgba(184,150,46,0.35);}
+.bpdf:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(184,150,46,0.45);}
+.bpdf svg{width:13px;height:13px;stroke:var(--ink);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
 
-  /* ── TOTALS BAR ── */
-  .totals-bar { display: flex; gap: 0; border: 1px solid var(--border-strong); border-radius: var(--r-sm); overflow: hidden; margin-top: 20px; }
-  .total-cell { flex: 1; padding: 16px 22px; background: var(--gold-faint); border-right: 1px solid var(--border); }
-  .total-cell:last-child { border-right: none; background: var(--cream-dark); }
-  .total-cell-label { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-muted); font-weight: 500; margin-bottom: 4px; }
-  .total-cell-value { font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
-  .credit-value { color: #2A7A4A; }
-  .debit-value  { color: #B83030; }
-  .net-value    { color: var(--gold); }
+/* EXPENSES */
+.el{display:flex;flex-direction:column;gap:9px;}
+.ei{display:flex;align-items:center;justify-content:space-between;padding:12px 15px;border:1px solid var(--border);border-radius:var(--rs);background:var(--cream);transition:var(--tr);}
+.ei:hover{background:var(--white);box-shadow:var(--sh-sm);}
+.ei-l{display:flex;align-items:center;gap:10px;}
+.ecat{padding:3px 9px;border-radius:100px;font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;}
+.csal{background:var(--gold-faint);color:var(--gold);border:1px solid var(--border);}
+.crnt{background:#EEF2FB;color:#3456A8;border:1px solid rgba(52,86,168,0.18);}
+.coth{background:#F1EEF9;color:#6B3DB8;border:1px solid rgba(107,61,184,0.18);}
+.en{font-size:13.5px;font-weight:500;color:var(--ink);}
+.ed{font-size:11px;color:var(--ink-muted);}
+.ea{font-family:var(--font-d);font-size:17px;font-weight:700;color:#B83030;}
 
-  /* ── EXPENSE TAGS ── */
-  .expense-list { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
-  .expense-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border: 1px solid var(--border); border-radius: var(--r-sm); background: var(--cream); transition: var(--transition); }
-  .expense-item:hover { background: var(--white); box-shadow: var(--shadow-sm); }
-  .expense-left { display: flex; align-items: center; gap: 12px; }
-  .expense-cat { padding: 4px 11px; border-radius: 100px; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
-  .cat-salary { background: var(--gold-faint); color: var(--gold); border: 1px solid var(--border); }
-  .cat-rent   { background: #EEF2FB; color: #3456A8; border: 1px solid rgba(52,86,168,0.18); }
-  .cat-other  { background: #F1EEF9; color: #6B3DB8; border: 1px solid rgba(107,61,184,0.18); }
-  .expense-name { font-size: 13.5px; font-weight: 500; color: var(--ink); }
-  .expense-date-small { font-size: 11px; color: var(--ink-muted); }
-  .expense-amount { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: #B83030; }
+/* EMPTY */
+.empty{text-align:center;padding:42px 22px;}
+.ei2{font-size:30px;margin-bottom:10px;opacity:0.4;}
+.et{font-family:var(--font-d);font-size:17px;color:var(--ink-soft);}
+.es{font-size:12px;color:var(--ink-muted);margin-top:4px;}
 
-  /* ── EMPTY STATE ── */
-  .empty-state { text-align: center; padding: 48px 24px; color: var(--ink-muted); }
-  .empty-icon { font-size: 32px; margin-bottom: 12px; opacity: 0.4; }
-  .empty-text { font-family: var(--font-display); font-size: 18px; color: var(--ink-soft); }
-  .empty-sub  { font-size: 12px; margin-top: 4px; }
+/* SAVE TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--ink);color:var(--gold-pale);font-size:11px;letter-spacing:0.1em;padding:8px 16px;border-radius:100px;border:1px solid rgba(184,150,46,0.2);opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:300;}
+.toast.show{opacity:1;}
 
-  /* ── PDF EXPORT BAR ── */
-  .pdf-export-bar { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; padding: 18px 26px; background: linear-gradient(135deg, #1A1408 0%, #2E2310 100%); border-radius: var(--r); margin-bottom: 24px; border: 1px solid rgba(184,150,46,0.3); position: relative; overflow: hidden; }
-  .pdf-export-bar::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold-light), var(--gold), var(--gold-light), transparent); }
-  .pdf-export-bar::after { content: 'PDF'; position: absolute; right: 22px; top: 50%; transform: translateY(-50%); font-family: var(--font-display); font-size: 72px; font-weight: 700; color: rgba(255,255,255,0.03); letter-spacing: -0.02em; pointer-events: none; line-height: 1; }
-  .pdf-export-label { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(240,224,176,0.55); font-weight: 500; margin-bottom: 7px; }
-  .pdf-export-title { font-family: var(--font-display); font-size: 17px; font-weight: 600; color: var(--gold-pale); margin-bottom: 3px; }
-  .pdf-export-sub { font-size: 11px; color: rgba(240,224,176,0.4); }
-  .pdf-fields { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; flex: 1; }
-  .pdf-form-group { display: flex; flex-direction: column; gap: 5px; }
-  .pdf-form-label { font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(240,224,176,0.5); font-weight: 500; }
-  .pdf-input { height: 38px; padding: 0 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(184,150,46,0.3); border-radius: var(--r-sm); color: var(--gold-pale); font-family: var(--font-body); font-size: 13px; outline: none; transition: var(--transition); color-scheme: dark; }
-  .pdf-input:focus { border-color: var(--gold); background: rgba(184,150,46,0.1); }
-  .btn-pdf { height: 38px; padding: 0 22px; background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%); color: var(--ink); border: none; border-radius: var(--r-sm); font-family: var(--font-body); font-size: 11.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; transition: var(--transition); box-shadow: 0 4px 16px rgba(184,150,46,0.35); display: flex; align-items: center; gap: 8px; white-space: nowrap; flex-shrink: 0; }
-  .btn-pdf:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(184,150,46,0.45); }
-  .btn-pdf:active { transform: scale(0.98); }
-  .btn-pdf svg { width: 14px; height: 14px; }
+/* INVOICE */
+.inv-prev{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px 16px;text-align:center;margin-bottom:18px;box-shadow:var(--sh-sm);position:relative;overflow:hidden;}
+.inv-prev::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),var(--gold-light),var(--gold),transparent);}
+.inv-name{font-family:var(--font-d);font-size:23px;font-weight:700;color:var(--ink);letter-spacing:0.03em;}
+.inv-deg{font-size:11px;color:var(--ink-muted);letter-spacing:0.18em;text-transform:uppercase;margin-top:3px;}
+.inv-ln{width:100%;height:1px;background:var(--border-s);margin:9px 0 8px;}
+.inv-dt{font-size:11.5px;color:var(--ink-soft);line-height:1.8;}
+.inv-dt b{color:var(--ink);font-weight:600;}
+.svc-tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.svc-tbl thead tr{background:var(--ink);}
+.svc-tbl thead th{padding:10px 12px;color:var(--gold-pale);font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;border:none;}
+.svc-tbl tbody tr{border-bottom:1px solid rgba(184,150,46,0.1);}
+.svc-tbl tbody tr:nth-child(even){background:var(--gold-faint);}
+.svc-tbl td{padding:5px 7px;vertical-align:middle;}
+.svc-sl{text-align:center;font-weight:600;color:var(--gold);font-family:var(--font-d);font-size:14px;width:36px;}
+.svc-di{width:100%;border:none;background:transparent;font-family:var(--font-b);font-size:13px;color:var(--ink);padding:6px;outline:none;border-radius:5px;transition:background 0.2s;}
+.svc-di:focus{background:var(--white);box-shadow:0 0 0 2px rgba(184,150,46,0.2);}
+.svc-ai{width:100px;border:1px solid var(--border);background:var(--white);font-family:var(--font-d);font-size:14px;font-weight:600;color:var(--ink);padding:5px 8px;border-radius:5px;text-align:right;outline:none;transition:border-color 0.2s;}
+.svc-ai:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,150,46,0.12);}
+.inv-tots{border:1px solid var(--border-s);border-radius:var(--rs);overflow:hidden;max-width:356px;margin-left:auto;}
+.itr{display:flex;align-items:center;justify-content:space-between;padding:10px 15px;border-bottom:1px solid var(--border);background:var(--cream);}
+.itr:last-child{border-bottom:none;}
+.itr.bal{background:var(--ink);}
+.itr.bal .itl{color:var(--gold-pale);}
+.itr.bal .itv{color:var(--gold-light);font-size:19px;}
+.itl{font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-muted);}
+.itv{font-family:var(--font-d);font-size:17px;font-weight:700;color:var(--ink);}
+.b-inv{width:100%;padding:14px;margin-top:4px;background:linear-gradient(135deg,var(--ink),#2E2310);color:var(--gold-pale);border:1px solid rgba(184,150,46,0.35);border-radius:var(--r);font-family:var(--font-b);font-size:13px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;cursor:pointer;transition:var(--tr);display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 6px 20px rgba(0,0,0,0.2);position:relative;overflow:hidden;}
+.b-inv::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.b-inv svg{width:16px;height:16px;stroke:var(--gold-light);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.b-inv:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,0.3);}
 
-  /* ── SAVE INDICATOR ── */
-  .save-indicator { position: fixed; bottom: 20px; right: 20px; background: var(--ink); color: var(--gold-pale); font-size: 11px; letter-spacing: 0.1em; padding: 8px 16px; border-radius: 100px; border: 1px solid rgba(184,150,46,0.2); opacity: 0; transition: opacity 0.3s ease; pointer-events: none; z-index: 50; }
-  .save-indicator.show { opacity: 1; }
+/* MOBILE LEDGER CARDS */
+.lmc{background:var(--cream);border:1px solid var(--border);border-radius:10px;padding:12px 13px;display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.lmc-b{flex:1;min-width:0;}
+.lmc-p{font-size:13px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lmc-d{font-size:10.5px;color:var(--ink-muted);margin-top:2px;}
+.lmc-r{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.lmc-a{font-family:var(--font-d);font-size:15px;font-weight:700;}
 
-  ::-webkit-scrollbar { width: 5px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--gold-pale); border-radius: 10px; }
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--gold-pale);border-radius:10px;}
 
-  /* ── MOBILE BOTTOM NAV ── */
-  .mob-nav {
-    display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 90;
-    height: 66px; background: var(--ink);
-    border-top: 1px solid rgba(184,150,46,0.22);
-    align-items: center; justify-content: space-around; padding: 0 6px;
-    box-shadow: 0 -8px 32px rgba(0,0,0,0.3);
-  }
-  .mob-nav-item {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 4px; flex: 1; height: 100%; cursor: pointer;
-    color: rgba(255,255,255,0.3); font-size: 9px; letter-spacing: 0.06em;
-    text-transform: uppercase; font-weight: 500; transition: var(--transition);
-    border-radius: 10px; padding: 6px 2px; -webkit-tap-highlight-color: transparent;
-    position: relative;
-  }
-  .mob-nav-item svg { width: 21px; height: 21px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; transition: var(--transition); }
-  .mob-nav-item.active { color: var(--gold-light); }
-  .mob-nav-item.active svg { stroke: var(--gold-light); }
-  .mob-nav-item.active::before {
-    content: ''; position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
-    width: 28px; height: 2px; background: var(--gold); border-radius: 2px;
-  }
-  .mob-nav-signout svg { stroke: rgba(255,100,100,0.45); }
-  .mob-nav-signout { color: rgba(255,100,100,0.4); }
+/* TABLET */
+@media(max-width:860px){.sb{width:198px;}.page{padding:20px;}.topbar{padding:0 20px;}.sg{grid-template-columns:1fr 1fr;}.tb-date{display:none;}}
 
-  /* ── MOBILE TOPBAR ── */
-  .mob-topbar {
-    display: none; height: 56px; background: var(--ink);
-    border-bottom: 1px solid rgba(184,150,46,0.18);
-    align-items: center; justify-content: space-between;
-    padding: 0 16px; flex-shrink: 0;
-    position: sticky; top: 0; z-index: 50;
-  }
-  .mob-topbar-left { display: flex; flex-direction: column; }
-  .mob-topbar-logo { font-family: var(--font-display); font-size: 17px; font-weight: 600; color: var(--gold-pale); letter-spacing: 0.01em; line-height: 1.2; }
-  .mob-topbar-logo span { color: var(--gold-light); font-style: italic; }
-  .mob-page-label { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(184,150,46,0.5); font-weight: 500; margin-top: 1px; }
-  .mob-topbar-right { display: flex; align-items: center; gap: 10px; }
-  .mob-avatar { width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid rgba(184,150,46,0.4); object-fit: cover; }
-  .mob-avatar-placeholder {
-    width: 32px; height: 32px; border-radius: 50%;
-    background: rgba(184,150,46,0.15); border: 1.5px solid rgba(184,150,46,0.4);
-    display: flex; align-items: center; justify-content: center;
-    font-family: var(--font-display); font-size: 13px; font-weight: 600; color: var(--gold-light);
-  }
-
-  /* ── TABLET ── */
-  @media (max-width: 860px) {
-    .sidebar { width: 210px; }
-    .page { padding: 24px; }
-    .topbar { padding: 0 24px; }
-    .stat-grid { grid-template-columns: 1fr 1fr; }
-    .topbar-date { display: none; }
-  }
-
-  /* ── MOBILE ── */
-  @media (max-width: 600px) {
-    .sidebar { display: none !important; }
-    .topbar  { display: none !important; }
-    .mob-nav    { display: flex; }
-    .mob-topbar { display: flex; }
-    #app { flex-direction: column; }
-    .main { flex-direction: column; overflow: hidden; }
-
-    /* Pages */
-    .page { padding: 14px 14px 84px; }
-    .section-title { font-size: 22px; }
-    .section-head  { margin-bottom: 16px; }
-
-    /* Stat cards — 2 col compact */
-    .stat-grid { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
-    .stat-card { padding: 14px 13px; border-radius: 12px; }
-    .stat-icon { width: 28px; height: 28px; border-radius: 6px; margin-bottom: 10px; }
-    .stat-icon svg { width: 13px; height: 13px; }
-    .stat-value { font-size: 20px; }
-    .stat-value .currency { font-size: 13px; }
-    .stat-label { font-size: 9px; letter-spacing: 0.08em; margin-bottom: 4px; }
-    .stat-sub   { font-size: 10px; margin-top: 4px; }
-
-    /* Panels */
-    .panel { border-radius: 12px; }
-    .panel-header { padding: 13px 15px; }
-    .panel-title  { font-size: 15px; }
-    .panel-body   { padding: 14px; }
-
-    /* Forms — full width single column */
-    .form-row { grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px; }
-    .form-input, .form-select { height: 48px; font-size: 15px; padding: 0 14px; border-radius: 10px; }
-    .form-label { font-size: 10px; }
-    .btn-primary { width: 100%; padding: 14px; font-size: 12px; border-radius: 10px; display: block; text-align: center; }
-
-    /* Hearings */
-    .hearings-grid { grid-template-columns: 1fr; gap: 10px; }
-    .hearing-card  { padding: 14px 15px; }
-
-    /* Ledger — hide table, show cards */
-    .table-wrap table  { display: none; }
-    #ledger-cards { display: flex !important; flex-direction: column; gap: 9px; padding: 12px 14px 4px; }
-    .ledger-mobile-card {
-      background: var(--cream); border: 1px solid var(--border);
-      border-radius: 10px; padding: 13px 14px;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .lmc-badge { flex-shrink: 0; }
-    .lmc-body  { flex: 1; min-width: 0; }
-    .lmc-particulars { font-size: 13px; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .lmc-date  { font-size: 10.5px; color: var(--ink-muted); margin-top: 2px; }
-    .lmc-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-    .lmc-amount { font-family: var(--font-display); font-size: 15px; font-weight: 700; }
-
-    /* Totals bar stack */
-    .totals-bar { flex-direction: column; margin: 10px 14px !important; }
-    .total-cell { border-right: none !important; border-bottom: 1px solid var(--border); padding: 11px 14px; display: flex; align-items: center; justify-content: space-between; flex: none; }
-    .total-cell:last-child { border-bottom: none; }
-    .total-cell-value { font-size: 18px; }
-
-    /* PDF bar */
-    .pdf-export-bar { flex-direction: column; align-items: flex-start; gap: 14px; padding: 16px 14px; }
-    .pdf-export-bar::after { display: none; }
-    .pdf-fields { flex-direction: column; width: 100%; gap: 10px; }
-    .pdf-input  { width: 100% !important; height: 46px; font-size: 15px; }
-    .btn-pdf    { width: 100%; height: 46px; justify-content: center; font-size: 12px; border-radius: 10px; }
-    .pdf-form-group { width: 100%; }
-
-    /* Expenses */
-    .expense-item  { padding: 12px 13px; border-radius: 10px; }
-    .expense-amount { font-size: 15px; }
-    .expense-name  { font-size: 13px; }
-    .delete-btn { width: 32px; height: 32px; font-size: 16px; }
-
-    /* Save toast above bottom nav */
-    .save-indicator { bottom: 76px; right: 14px; font-size: 11px; }
-
-    /* Auth & landing mobile */
-    .auth-card { padding: 32px 22px; border-radius: 16px; }
-    .auth-heading { font-size: 26px; }
-    .auth-desc { font-size: 12px; margin-bottom: 28px; }
-    .landing-logo { font-size: clamp(26px, 7vw, 44px); padding: 0 20px; }
-    .landing-tagline { font-size: 10px; letter-spacing: 0.12em; padding: 0 20px; }
-    .lc-tl, .lc-tr, .lc-bl, .lc-br { width: 36px; height: 36px; }
-    .lc-tl { top: 16px; left: 16px; }
-    .lc-tr { top: 16px; right: 16px; }
-    .lc-bl { bottom: 16px; left: 16px; }
-    .lc-br { bottom: 16px; right: 16px; }
-  }
-
-  /* ── INVOICE GENERATOR ── */
-  .inv-svc-table { width:100%; border-collapse:collapse; font-size:13px; }
-  .inv-svc-table thead tr { background: var(--gold-faint); border-bottom:1px solid var(--border-strong); }
-  .inv-svc-table thead th { padding:11px 14px; text-align:left; font-size:10px; font-weight:600; letter-spacing:0.16em; text-transform:uppercase; color:var(--gold); }
-  .inv-svc-table tbody tr { border-bottom:1px solid rgba(184,150,46,0.07); }
-  .inv-svc-table tbody tr:last-child { border-bottom:none; }
-  .inv-svc-table td { padding:6px 10px; vertical-align:middle; }
-  .svc-desc-input { width:100%; border:1px solid var(--border-strong); border-radius:6px; padding:8px 10px; font-family:var(--font-body); font-size:13px; background:var(--cream); color:var(--ink); outline:none; transition:var(--transition); }
-  .svc-desc-input:focus { border-color:var(--gold); background:var(--white); box-shadow:0 0 0 3px rgba(184,150,46,0.1); }
-  .svc-amt-input  { width:110px; border:1px solid var(--border-strong); border-radius:6px; padding:8px 10px; font-family:var(--font-body); font-size:13px; background:var(--cream); color:var(--ink); outline:none; transition:var(--transition); text-align:right; }
-  .svc-amt-input:focus { border-color:var(--gold); background:var(--white); box-shadow:0 0 0 3px rgba(184,150,46,0.1); }
-  .svc-sl { font-size:12px; color:var(--ink-muted); text-align:center; width:36px; }
-  .inv-totals-box { background:var(--cream); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
-  .inv-tot-row { display:flex; justify-content:space-between; align-items:center; padding:11px 18px; border-bottom:1px solid var(--border); font-size:13px; color:var(--ink-mid); }
-  .inv-tot-row:last-child { border-bottom:none; }
-  .inv-tot-row.balance { background:var(--ink); }
-  .inv-tot-row.balance .tot-label { color:var(--gold-pale); font-weight:600; letter-spacing:0.05em; }
-  .inv-tot-row.balance .tot-val   { font-family:var(--font-display); font-size:20px; font-weight:700; color:var(--gold-light); }
-  .tot-label { font-weight:500; }
-  .tot-val   { font-family:var(--font-display); font-size:16px; font-weight:600; color:var(--ink); }
-  .btn-gen-invoice {
-    width:100%; padding:16px; margin-top:8px;
-    background:linear-gradient(135deg, var(--ink) 0%, #2E2310 100%);
-    color:var(--gold-pale); border:1px solid rgba(184,150,46,0.3);
-    border-radius:12px; font-family:var(--font-body); font-size:13px; font-weight:600;
-    letter-spacing:0.16em; text-transform:uppercase; cursor:pointer;
-    transition:var(--transition); display:flex; align-items:center; justify-content:center; gap:12px;
-    box-shadow:0 4px 20px rgba(0,0,0,0.2);
-    position:relative; overflow:hidden;
-  }
-  .btn-gen-invoice::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--gold),transparent); }
-  .btn-gen-invoice:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(0,0,0,0.28); border-color:rgba(184,150,46,0.5); }
-  .btn-gen-invoice svg { width:18px; height:18px; stroke:var(--gold-light); fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
-  .inv-firm-preview {
-    background:linear-gradient(135deg, var(--ink) 0%, #2A1E08 100%);
-    border:1px solid rgba(184,150,46,0.25); border-radius:10px;
-    padding:16px 20px; margin-bottom:20px; text-align:center;
-  }
-  .ifp-name { font-family:var(--font-display); font-size:20px; font-weight:700; color:var(--gold-pale); letter-spacing:0.03em; }
-  .ifp-deg  { font-size:10px; letter-spacing:0.2em; color:rgba(184,150,46,0.55); text-transform:uppercase; margin:3px 0 8px; }
-  .ifp-line { width:60px; height:1px; background:var(--gold); margin:8px auto; opacity:0.4; }
-  .ifp-sub  { font-size:11px; color:rgba(255,255,255,0.35); letter-spacing:0.06em; line-height:1.7; }
-  .ifp-sub b { color:rgba(184,150,46,0.7); }
-  @media (max-width:600px) {
-    .svc-amt-input { width:80px; }
-    .inv-svc-table thead th { font-size:9px; padding:9px 8px; }
-    .inv-svc-table td { padding:5px 6px; }
-  }
-
-  /* ══ INVOICE PAGE CSS ══════════════════════════════════════════════ */
-
-  /* Firm header preview card */
-  .inv-firm-preview {
-    background: var(--white); border: 1px solid var(--border);
-    border-radius: var(--r); padding: 22px 28px 18px;
-    text-align: center; margin-bottom: 20px;
-    box-shadow: var(--shadow-sm);
-    position: relative; overflow: hidden;
-  }
-  .inv-firm-preview::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    background: linear-gradient(90deg, transparent, var(--gold), var(--gold-light), var(--gold), transparent);
-  }
-  .ifp-name {
-    font-family: var(--font-display); font-size: 26px; font-weight: 700;
-    color: var(--ink); letter-spacing: 0.04em; line-height: 1.2;
-  }
-  .ifp-deg {
-    font-size: 11px; color: var(--ink-muted); letter-spacing: 0.18em;
-    text-transform: uppercase; margin-top: 4px;
-  }
-  .ifp-line {
-    width: 100%; height: 1px; background: var(--border-strong);
-    margin: 12px 0 10px;
-  }
-  .ifp-sub {
-    font-size: 11.5px; color: var(--ink-soft); line-height: 1.8;
-    letter-spacing: 0.01em;
-  }
-  .ifp-sub b { color: var(--ink); font-weight: 600; }
-  .ifp-badge {
-    display: inline-block; margin-top: 10px;
-    padding: 4px 16px; background: var(--gold-faint);
-    border: 1px solid var(--border); border-radius: 100px;
-    font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
-    text-transform: uppercase; color: var(--gold);
-  }
-
-  /* Services table */
-  .inv-svc-table {
-    width: 100%; border-collapse: collapse; font-size: 13px;
-  }
-  .inv-svc-table thead tr {
-    background: var(--ink);
-  }
-  .inv-svc-table thead th {
-    padding: 11px 14px; color: var(--gold-pale);
-    font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
-    border: none;
-  }
-  .inv-svc-table tbody tr {
-    border-bottom: 1px solid rgba(184,150,46,0.1);
-    transition: background 0.15s;
-  }
-  .inv-svc-table tbody tr:nth-child(even) { background: var(--gold-faint); }
-  .inv-svc-table tbody tr:hover { background: var(--cream-dark); }
-  .inv-svc-table td { padding: 6px 8px; vertical-align: middle; }
-  .svc-sl {
-    text-align: center; font-weight: 600; color: var(--gold);
-    font-family: var(--font-display); font-size: 15px; width: 40px;
-  }
-  .svc-desc-input {
-    width: 100%; border: none; background: transparent;
-    font-family: var(--font-body); font-size: 13px; color: var(--ink);
-    padding: 6px 6px; outline: none; border-radius: 6px;
-    transition: background 0.2s;
-  }
-  .svc-desc-input:focus { background: var(--white); box-shadow: 0 0 0 2px rgba(184,150,46,0.2); }
-  .svc-amt-input {
-    width: 110px; border: 1px solid var(--border); background: var(--white);
-    font-family: var(--font-display); font-size: 15px; font-weight: 600;
-    color: var(--ink); padding: 6px 10px; border-radius: 6px; text-align: right;
-    outline: none; transition: border-color 0.2s;
-  }
-  .svc-amt-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(184,150,46,0.12); }
-  .svc-amt-input::placeholder { font-size: 12px; color: var(--ink-muted); font-weight: 400; }
-
-  /* Totals box */
-  .inv-totals-box {
-    border: 1px solid var(--border-strong); border-radius: var(--r-sm);
-    overflow: hidden; max-width: 380px; margin-left: auto;
-  }
-  .inv-tot-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 11px 18px; border-bottom: 1px solid var(--border);
-    background: var(--cream);
-  }
-  .inv-tot-row:last-child { border-bottom: none; }
-  .inv-tot-row.balance {
-    background: var(--ink) !important;
-  }
-  .inv-tot-row.balance .tot-label { color: var(--gold-pale); font-size: 12px; letter-spacing: 0.06em; }
-  .inv-tot-row.balance .tot-val   { color: var(--gold-light); font-size: 20px; }
-  .tot-label {
-    font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--ink-muted);
-  }
-  .tot-val {
-    font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--ink);
-  }
-
-  /* Generate button */
-  .btn-gen-invoice {
-    width: 100%; padding: 16px; margin-top: 4px;
-    background: linear-gradient(135deg, var(--ink) 0%, #2E2310 100%);
-    color: var(--gold-pale); border: 1px solid rgba(184,150,46,0.35);
-    border-radius: var(--r); font-family: var(--font-body); font-size: 13px;
-    font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
-    cursor: pointer; transition: var(--transition);
-    display: flex; align-items: center; justify-content: center; gap: 12px;
-    box-shadow: 0 6px 24px rgba(0,0,0,0.2);
-    position: relative; overflow: hidden;
-  }
-  .btn-gen-invoice::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  }
-  .btn-gen-invoice svg {
-    width: 18px; height: 18px; stroke: var(--gold-light); fill: none;
-    stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-  }
-  .btn-gen-invoice:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(0,0,0,0.3);
-    border-color: rgba(184,150,46,0.6);
-    color: var(--gold-light);
-  }
-  .btn-gen-invoice:active { transform: scale(0.99); }
-
-  /* Mobile invoice tweaks */
-  @media (max-width: 600px) {
-    .inv-firm-preview { padding: 16px 14px 14px; }
-    .ifp-name { font-size: 20px; }
-    .ifp-sub  { font-size: 10.5px; }
-    .svc-amt-input { width: 80px; font-size: 13px; }
-    .inv-svc-table thead th { font-size: 9px; padding: 9px 8px; }
-    .inv-totals-box { max-width: 100%; }
-    .inv-tot-row { padding: 10px 14px; }
-    .tot-val { font-size: 16px; }
-    .inv-tot-row.balance .tot-val { font-size: 18px; }
-    .btn-gen-invoice { font-size: 12px; padding: 14px; }
-  }
-  /* ══ END INVOICE CSS ═══════════════════════════════════════════════ */
-
+/* MOBILE */
+@media(max-width:600px){
+  .sb{display:none!important;}.topbar{display:none!important;}
+  .m-top{display:flex;}.m-nav{display:flex;}
+  .app-body{flex-direction:column;}
+  .page{padding:13px 12px 80px;}
+  .sh-title{font-size:21px;}.sh{margin-bottom:15px;}
+  .sg{grid-template-columns:1fr 1fr;gap:9px;margin-bottom:15px;}
+  .sc{padding:12px 11px;border-radius:11px;}
+  .sc-icon{width:27px;height:27px;margin-bottom:9px;}
+  .sc-val{font-size:19px;}.sc-val .cur{font-size:12px;}
+  .sc-lbl{font-size:9px;margin-bottom:3px;}.sc-sub{font-size:10px;}
+  .panel{border-radius:11px;}.ph{padding:12px 13px;}.ph-title{font-size:15px;}.pb{padding:12px;}
+  .fr{grid-template-columns:1fr;gap:10px;margin-bottom:10px;}
+  .fi,.fs{height:46px;font-size:15px;border-radius:9px;}
+  .bp{width:100%;padding:13px;font-size:12px;border-radius:9px;display:block;text-align:center;}
+  .hg{grid-template-columns:1fr;gap:9px;}
+  .tw table{display:none;}
+  #mob-l-cards{display:block;}
+  .tbar{flex-direction:column;margin:10px 12px!important;}
+  .tc{border-right:none!important;border-bottom:1px solid var(--border);padding:10px 13px;display:flex;align-items:center;justify-content:space-between;flex:none;}
+  .tc:last-child{border-bottom:none;}.tc-v{font-size:16px;}
+  .pdf-bar{flex-direction:column;align-items:flex-start;gap:12px;padding:14px 12px;}
+  .pdf-fs{flex-direction:column;width:100%;gap:9px;}
+  .pfi{width:100%!important;height:44px;font-size:15px;}
+  .pfg{width:100%;}
+  .bpdf{width:100%;height:44px;justify-content:center;font-size:12px;border-radius:9px;}
+  .ei{padding:11px 11px;border-radius:9px;}.ea{font-size:14px;}.db{width:30px;height:30px;}
+  .toast{bottom:73px;right:12px;}
+  .inv-prev{padding:14px 12px;}.inv-name{font-size:19px;}
+  .inv-tots{max-width:100%;}.b-inv{font-size:12px;padding:13px;}
+  .svc-ai{width:80px;}
+  .lc{width:32px;height:32px;}.lc-tl{top:13px;left:13px;}.lc-tr{top:13px;right:13px;}
+  .lc-bl{bottom:13px;left:13px;}.lc-br{bottom:13px;right:13px;}
+  .a-card{padding:30px 18px;}.a-head{font-size:24px;}
+}
 </style>
 </head>
 <body>
 
-<script>
-  // ── EARLY INIT — runs before Firebase, ensures button always works ──
-  function showScreen(id) {
-    ['landing','auth-screen','loading-screen'].forEach(function(s) {
-      var el = document.getElementById(s);
-      if (el) { el.style.display = 'none'; el.classList.add('hidden'); }
-    });
-    var app = document.getElementById('app');
-    if (app) app.style.display = 'none';
-    if (id === 'app') {
-      if (app) app.style.display = 'flex';
-    } else {
-      var el = document.getElementById(id);
-      if (el) { el.style.display = 'flex'; el.classList.remove('hidden'); }
-    }
-  }
-  function goToAuth() {
-    var landing = document.getElementById('landing');
-    if (landing) {
-      landing.style.opacity = '0';
-      landing.style.transform = 'translateY(-24px)';
-      landing.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
-      landing.style.pointerEvents = 'none';
-    }
-    setTimeout(function() { showScreen('auth-screen'); }, 700);
-  }
-  window._firebaseReady = false;
-  window.addEventListener('error', function(e) {
-    console.error('Page error:', e.message);
-  });
-</script>
-
-
-<!-- ════ LANDING ════ -->
+<!-- LANDING -->
 <div id="landing" class="screen">
-  <div class="landing-corner lc-tl"></div>
-  <div class="landing-corner lc-tr"></div>
-  <div class="landing-corner lc-bl"></div>
-  <div class="landing-corner lc-br"></div>
-  <div class="landing-ornament"></div>
-  <div class="landing-logo">B.K Jain <span>&</span> Associates</div>
-  <div class="landing-rule"></div>
-  <div class="landing-tagline">Professional Legal Management Dashboard</div>
-  <div class="landing-est">Advocates &amp; Legal Consultants</div>
-  <button class="landing-btn" onclick="goToAuth()">Enter Dashboard</button>
+  <div class="lc lc-tl"></div><div class="lc lc-tr"></div>
+  <div class="lc lc-bl"></div><div class="lc lc-br"></div>
+  <div class="l-orn"></div>
+  <div class="l-logo">B.K Jain <span>&</span> Associates</div>
+  <div class="l-rule"></div>
+  <div class="l-tag">Professional Legal Management Dashboard</div>
+  <div class="l-est">Advocates &amp; Legal Consultants</div>
+  <button class="l-btn" onclick="goToAuth()">Enter Dashboard</button>
 </div>
 
-<!-- ════ AUTH SCREEN ════ -->
+<!-- AUTH -->
 <div id="auth-screen" class="screen hidden">
-  <div class="auth-glow"></div>
-  <div class="landing-corner lc-tl"></div>
-  <div class="landing-corner lc-tr"></div>
-  <div class="landing-corner lc-bl"></div>
-  <div class="landing-corner lc-br"></div>
-  <div class="auth-card">
-    <div class="auth-firm">B.K Jain <span>&</span> Associates</div>
-    <div class="auth-subtitle">Legal Management Dashboard</div>
-    <div class="auth-divider"><div class="auth-divider-line"></div><div class="auth-divider-text">Secure Access</div><div class="auth-divider-line"></div></div>
-    <div class="auth-heading">Welcome Back</div>
-    <div class="auth-desc">Sign in with your Google account to access your dashboard. Your data is securely stored and synced across all your devices.</div>
-    <button class="google-btn" id="google-btn" onclick="signInWithGoogle()">
+  <div class="a-glow"></div>
+  <div class="lc lc-tl" style="border-color:rgba(184,150,46,0.2);animation:none;opacity:0.5;"></div>
+  <div class="lc lc-tr" style="border-color:rgba(184,150,46,0.2);animation:none;opacity:0.5;"></div>
+  <div class="lc lc-bl" style="border-color:rgba(184,150,46,0.2);animation:none;opacity:0.5;"></div>
+  <div class="lc lc-br" style="border-color:rgba(184,150,46,0.2);animation:none;opacity:0.5;"></div>
+  <div class="a-card">
+    <div class="a-firm">B.K Jain <span>&</span> Associates</div>
+    <div class="a-sub">Legal Management Dashboard</div>
+    <div class="a-div"><div class="a-div-l"></div><div class="a-div-t">Secure Access</div><div class="a-div-l"></div></div>
+    <div class="a-head">Welcome Back</div>
+    <div class="a-desc">Sign in with your Google account to access your dashboard. Your data is securely stored and synced across all your devices.</div>
+    <button class="g-btn" id="g-btn" onclick="signIn()">
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -731,1110 +357,521 @@
       </svg>
       Continue with Google
     </button>
-    <div class="auth-error" id="auth-error"></div>
-    <div class="auth-note">By signing in you agree to keep your firm's data confidential.<br>Only authorised members of B.K Jain & Associates may access this dashboard.</div>
+    <div class="a-err" id="a-err"></div>
+    <div class="a-note">Only authorised members of B.K Jain &amp; Associates may access this dashboard.</div>
   </div>
 </div>
 
-<!-- ════ LOADING SCREEN ════ -->
+<!-- LOADING -->
 <div id="loading-screen" class="screen hidden">
-  <div class="loader-ring"></div>
-  <div class="loader-text">Loading your dashboard…</div>
+  <div class="ld-ring"></div>
+  <div class="ld-txt">Loading your dashboard…</div>
 </div>
 
-<!-- ════ APP ════ -->
+<!-- APP -->
 <div id="app">
-
-  <!-- MOBILE TOPBAR -->
-  <div class="mob-topbar">
-    <div class="mob-topbar-left">
-      <div class="mob-topbar-logo">B.K Jain <span>&amp;</span> Associates</div>
-      <div class="mob-page-label" id="mob-page-label">Overview</div>
-    </div>
-    <div class="mob-topbar-right">
-      <div id="mob-avatar-wrap"></div>
-    </div>
+  <div class="m-top">
+    <div><div class="m-top-logo">B.K Jain <span>&</span> Associates</div><div class="m-top-lbl" id="m-lbl">Overview</div></div>
+    <div id="m-av-wrap"></div>
   </div>
-
-  <!-- MOBILE BOTTOM NAV -->
-  <nav class="mob-nav">
-    <div class="mob-nav-item active" id="mob-nav-dashboard" onclick="mobNav('dashboard','mob-nav-dashboard','Overview')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
-      Home
-    </div>
-    <div class="mob-nav-item" id="mob-nav-ledger" onclick="mobNav('ledger','mob-nav-ledger','Fee Ledger')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 10h16M4 14h10M4 18h7"/></svg>
-      Ledger
-    </div>
-    <div class="mob-nav-item" id="mob-nav-expenses" onclick="mobNav('expenses','mob-nav-expenses','Expenses')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-      Expenses
-    </div>
-    <div class="mob-nav-item" id="mob-nav-invoice" onclick="mobNav('invoice','mob-nav-invoice','Invoice')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-      Invoice
-    </div>
-    <div class="mob-nav-item mob-nav-signout" onclick="signOut()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      Sign Out
-    </div>
+  <nav class="m-nav">
+    <div class="mn-item active" id="mn-d" onclick="navTo('dashboard','mn-d','Overview')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>Home</div>
+    <div class="mn-item" id="mn-l" onclick="navTo('ledger','mn-l','Fee Ledger')"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h10M4 18h7"/></svg>Ledger</div>
+    <div class="mn-item" id="mn-e" onclick="navTo('expenses','mn-e','Expenses')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Expenses</div>
+    <div class="mn-item" id="mn-i" onclick="navTo('invoice','mn-i','Invoice')"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Invoice</div>
+    <div class="mn-item mn-so" onclick="doSignOut()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Out</div>
   </nav>
-
-  <aside class="sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-logo">B.K Jain <span>&</span> Associates</div>
-      <div class="sidebar-sub">Legal Management</div>
-    </div>
-    <nav class="sidebar-nav">
-      <div class="nav-label">Menu</div>
-      <div class="nav-item active" onclick="showPage('dashboard', this)">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        Dashboard
+  <div class="app-body">
+    <aside class="sb">
+      <div class="sb-h"><div class="sb-logo">B.K Jain <span>&</span> Associates</div><div class="sb-s">Legal Management</div></div>
+      <nav class="sb-nav">
+        <div class="sb-lbl">Menu</div>
+        <div class="ni active" onclick="showPage('dashboard',this)"><svg class="ni-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</div>
+        <div class="ni" onclick="showPage('ledger',this)"><svg class="ni-icon" viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h10M4 18h7"/></svg>Ledger</div>
+        <div class="ni" onclick="showPage('expenses',this)"><svg class="ni-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Expenses</div>
+        <div class="ni" onclick="showPage('invoice',this)"><svg class="ni-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Invoice</div>
+      </nav>
+      <div class="sb-u">
+        <div id="sb-av"></div>
+        <div class="u-info"><div class="u-name" id="u-name">—</div><div class="u-role">Advocate</div></div>
+        <button class="so-btn" onclick="doSignOut()" title="Sign out"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
       </div>
-      <div class="nav-item" onclick="showPage('ledger', this)">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 10h16M4 14h10M4 18h7"/></svg>
-        Ledger
-      </div>
-      <div class="nav-item" onclick="showPage('expenses', this)">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-        Expenses
-      </div>
-      <div class="nav-item" onclick="showPage('invoice', this)">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-        Invoice
-      </div>
-    </nav>
-    <div class="sidebar-user">
-      <div id="user-avatar-wrap"></div>
-      <div class="user-info">
-        <div class="user-name" id="user-name">—</div>
-        <div class="user-role">Advocate</div>
-      </div>
-      <button class="signout-btn" onclick="signOut()" title="Sign out">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      </button>
-    </div>
-  </aside>
-
-  <main class="main">
-    <div class="topbar">
-      <div class="topbar-title" id="topbar-title">Dashboard</div>
-      <div style="display:flex;align-items:center;gap:16px;">
-        <div class="topbar-date" id="topbar-date"></div>
-        <div class="topbar-badge"><div class="badge-dot"></div><div class="badge-text">Active</div></div>
-      </div>
-    </div>
-
-    <!-- DASHBOARD -->
-    <div class="page active" id="page-dashboard">
-      <div class="section-head">
-        <div class="section-eyebrow">Overview</div>
-        <div class="section-title">Financial Summary</div>
-        <div class="section-rule"></div>
-      </div>
-      <div class="stat-grid">
-        <div class="stat-card">
-          <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 7v10M9 10l3-3 3 3M9 14l3 3 3-3"/></svg></div>
-          <div class="stat-label">Total Income</div>
-          <div class="stat-value"><span class="currency">₹</span><span id="stat-income">0</span></div>
-          <div class="stat-sub">From ledger credits</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 14l3-3 3 3M9 10l3-3 3 3" transform="rotate(180 12 12)"/></svg></div>
-          <div class="stat-label">Total Expenses</div>
-          <div class="stat-value"><span class="currency">₹</span><span id="stat-expenses">0</span></div>
-          <div class="stat-sub">All expense entries</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 14h6M9 10h4"/></svg></div>
-          <div class="stat-label">Pending Fees</div>
-          <div class="stat-value"><span class="currency">₹</span><span id="stat-pending">0</span></div>
-          <div class="stat-sub">Ledger debits outstanding</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
-          <div class="stat-label">Upcoming Hearings</div>
-          <div class="stat-value" id="stat-hearings">0</div>
-          <div class="stat-sub">Scheduled cases</div>
-        </div>
-      </div>
-      <div class="panel">
-        <div class="panel-header">
-          <div class="panel-title">Upcoming Hearings</div>
-          <button class="btn-primary" style="font-size:11px;padding:8px 18px;">+ Add Below</button>
-        </div>
-        <div class="panel-body">
-          <div id="hearings-list" class="hearings-grid"></div>
-          <div style="margin-top:24px;padding-top:22px;border-top:1px solid var(--border);">
-            <div style="font-family:var(--font-display);font-size:16px;color:var(--ink-soft);margin-bottom:16px;font-weight:600;">Add New Hearing</div>
-            <div class="form-row">
-              <div class="form-group"><label class="form-label">Case Name</label><input type="text" class="form-input" id="h-case" placeholder="e.g. Sharma vs State"></div>
-              <div class="form-group"><label class="form-label">Court</label><input type="text" class="form-input" id="h-court" placeholder="e.g. District Court, Guwahati"></div>
-              <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="h-date"></div>
-            </div>
-            <button class="btn-primary" onclick="addHearing()">Add Hearing</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- LEDGER -->
-    <div class="page" id="page-ledger">
-      <div class="section-head">
-        <div class="section-eyebrow">Accounts</div>
-        <div class="section-title">Fee Ledger</div>
-        <div class="section-rule"></div>
-      </div>
-      <div class="pdf-export-bar">
-        <div style="flex-shrink:0;">
-          <div class="pdf-export-label">Export</div>
-          <div class="pdf-export-title">Download Statement</div>
-          <div class="pdf-export-sub">Filter by date range &amp; export as PDF</div>
-        </div>
-        <div class="pdf-fields">
-          <div class="pdf-form-group"><label class="pdf-form-label">From Date</label><input type="date" class="pdf-input" id="pdf-from" style="width:150px;"></div>
-          <div class="pdf-form-group"><label class="pdf-form-label">To Date</label><input type="date" class="pdf-input" id="pdf-to" style="width:150px;"></div>
-          <button class="btn-pdf" onclick="downloadLedgerPDF()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Download PDF
-          </button>
-        </div>
-      </div>
-      <div class="panel" style="margin-bottom:24px;">
-        <div class="panel-header"><div class="panel-title">New Entry</div></div>
-        <div class="panel-body">
-          <div class="form-row">
-            <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="l-date"></div>
-            <div class="form-group"><label class="form-label">Type</label><select class="form-select" id="l-type"><option value="Credit">Credit</option><option value="Debit">Debit</option></select></div>
-            <div class="form-group"><label class="form-label">Amount (₹)</label><input type="number" class="form-input" id="l-amount" placeholder="0"></div>
-            <div class="form-group"><label class="form-label">Particulars</label><input type="text" class="form-input" id="l-particulars" placeholder="Description"></div>
-          </div>
-          <button class="btn-primary" onclick="addLedger()">Add Entry</button>
-        </div>
-      </div>
-      <div class="panel">
-        <div class="panel-header"><div class="panel-title">Transaction History</div></div>
-        <div class="panel-body" style="padding:0;">
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Date</th><th>Type</th><th>Particulars</th><th>Amount</th><th></th></tr></thead>
-              <tbody id="ledger-body"></tbody>
-            </table>
-            <div id="ledger-empty" class="empty-state" style="display:none;"><div class="empty-icon">📋</div><div class="empty-text">No entries yet</div><div class="empty-sub">Add your first ledger entry above</div></div>
-          </div>
-          <!-- Mobile card view for ledger (hidden on desktop) -->
-          <div id="ledger-cards" style="display:none;"></div>
-          <div class="totals-bar" id="ledger-totals" style="margin:16px;display:none;">
-            <div class="total-cell"><div class="total-cell-label">Total Credits</div><div class="total-cell-value credit-value" id="tot-credit">₹0</div></div>
-            <div class="total-cell"><div class="total-cell-label">Total Debits</div><div class="total-cell-value debit-value" id="tot-debit">₹0</div></div>
-            <div class="total-cell" style="flex:1;"><div class="total-cell-label">Net Balance</div><div class="total-cell-value net-value" id="tot-net">₹0</div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- EXPENSES -->
-    <div class="page" id="page-expenses">
-      <div class="section-head">
-        <div class="section-eyebrow">Finance</div>
-        <div class="section-title">Expense Tracker</div>
-        <div class="section-rule"></div>
-      </div>
-      <div class="panel" style="margin-bottom:24px;">
-        <div class="panel-header"><div class="panel-title">Record Expense</div></div>
-        <div class="panel-body">
-          <div class="form-row">
-            <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="e-date"></div>
-            <div class="form-group"><label class="form-label">Category</label><select class="form-select" id="e-cat"><option value="Salary">Salary</option><option value="Rent">Rent</option><option value="Other">Other</option></select></div>
-            <div class="form-group"><label class="form-label">Amount (₹)</label><input type="number" class="form-input" id="e-amount" placeholder="0"></div>
-            <div class="form-group"><label class="form-label">Description</label><input type="text" class="form-input" id="e-desc" placeholder="Optional note"></div>
-          </div>
-          <button class="btn-primary" onclick="addExpense()">Add Expense</button>
-        </div>
-      </div>
-      <div class="panel">
-        <div class="panel-header"><div class="panel-title">All Expenses</div><div id="expense-total-badge" style="font-family:var(--font-display);font-size:18px;color:var(--gold);font-weight:600;"></div></div>
-        <div class="panel-body">
-          <div class="expense-list" id="expense-list"></div>
-          <div id="expense-empty" class="empty-state" style="display:none;"><div class="empty-icon">💼</div><div class="empty-text">No expenses recorded</div><div class="empty-sub">Add your first expense above</div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- INVOICE GENERATOR -->
-    <div class="page" id="page-invoice">
-      <div class="section-head">
-        <div class="section-eyebrow">Documents</div>
-        <div class="section-title">Invoice Generator</div>
-        <div class="section-rule"></div>
-      </div>
-
-      <!-- Firm header preview -->
-      <div class="inv-firm-preview">
-        <div class="ifp-name">BIMAL KUMAR JAIN</div>
-        <div class="ifp-deg">M.COM &nbsp;·&nbsp; LLB</div>
-        <div class="ifp-line"></div>
-        <div class="ifp-sub">
-          <b>ADVOCATE · GAUHATI HIGH COURT</b><br>
-          Enrollment No. : 26 of 1997 &nbsp;|&nbsp; Chamber : S.K Jain &amp; Associates<br>
-          Bara Bazar Pandu, Jain Mandir Bye Lane, P.O. Pandu, Guwahati – 781012
+    </aside>
+    <main class="main">
+      <div class="topbar">
+        <div class="tb-title" id="tb-title">Dashboard</div>
+        <div style="display:flex;align-items:center;gap:13px;">
+          <div class="tb-date" id="tb-date"></div>
+          <div class="tb-badge"><div class="bd"></div><div class="bt">Active</div></div>
         </div>
       </div>
 
-      <!-- Invoice Details -->
-      <div class="panel" style="margin-bottom:18px;">
-        <div class="panel-header"><div class="panel-title">Invoice Details</div></div>
-        <div class="panel-body">
-          <div class="form-row" style="grid-template-columns:1fr 1fr;">
-            <div class="form-group">
-              <label class="form-label">Invoice Number</label>
-              <input type="text" class="form-input" id="inv-no" placeholder="e.g. SKJ/01/2026-27">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Date</label>
-              <input type="date" class="form-input" id="inv-date">
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="sh"><div class="sh-eye">Overview</div><div class="sh-title">Financial Summary</div><div class="sh-rule"></div></div>
+        <div class="sg">
+          <div class="sc"><div class="sc-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 7v10M9 10l3-3 3 3M9 14l3 3 3-3"/></svg></div><div class="sc-lbl">Total Income</div><div class="sc-val"><span class="cur">₹</span><span id="s-inc">0</span></div><div class="sc-sub">Ledger credits</div></div>
+          <div class="sc"><div class="sc-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 14l3-3 3 3M9 10l3-3 3 3" transform="rotate(180 12 12)"/></svg></div><div class="sc-lbl">Total Expenses</div><div class="sc-val"><span class="cur">₹</span><span id="s-exp">0</span></div><div class="sc-sub">All expenses</div></div>
+          <div class="sc"><div class="sc-icon"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 14h6M9 10h4"/></svg></div><div class="sc-lbl">Pending Fees</div><div class="sc-val"><span class="cur">₹</span><span id="s-pnd">0</span></div><div class="sc-sub">Ledger debits</div></div>
+          <div class="sc"><div class="sc-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div><div class="sc-lbl">Upcoming Hearings</div><div class="sc-val" id="s-hr">0</div><div class="sc-sub">Scheduled cases</div></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><div class="ph-title">Upcoming Hearings</div></div>
+          <div class="pb">
+            <div id="h-list" class="hg"></div>
+            <div style="margin-top:20px;padding-top:18px;border-top:1px solid var(--border);">
+              <div style="font-family:var(--font-d);font-size:15px;color:var(--ink-soft);margin-bottom:13px;font-weight:600;">Add Hearing</div>
+              <div class="fr">
+                <div class="fg"><label class="fl">Case Name</label><input type="text" class="fi" id="h-case" placeholder="e.g. Sharma vs State"></div>
+                <div class="fg"><label class="fl">Court</label><input type="text" class="fi" id="h-court" placeholder="e.g. Gauhati High Court"></div>
+                <div class="fg"><label class="fl">Date</label><input type="date" class="fi" id="h-date"></div>
+              </div>
+              <button class="bp" onclick="addHearing()">Add Hearing</button>
             </div>
           </div>
-          <div class="form-row" style="grid-template-columns:1fr 1fr;">
-            <div class="form-group">
-              <label class="form-label">Billed To (Client Name)</label>
-              <input type="text" class="form-input" id="inv-client" placeholder="e.g. M/S AADHAR">
+        </div>
+      </div>
+
+      <!-- LEDGER -->
+      <div class="page" id="page-ledger">
+        <div class="sh"><div class="sh-eye">Accounts</div><div class="sh-title">Fee Ledger</div><div class="sh-rule"></div></div>
+        <div class="pdf-bar">
+          <div class="pbi"><div class="pbl">Export</div><div class="pbt">Download Statement</div><div class="pbs">Filter by date &amp; export as PDF</div></div>
+          <div class="pdf-fs">
+            <div class="pfg"><label class="pfl">From Date</label><input type="date" class="pfi" id="pdf-from" style="width:146px;"></div>
+            <div class="pfg"><label class="pfl">To Date</label><input type="date" class="pfi" id="pdf-to" style="width:146px;"></div>
+            <button class="bpdf" onclick="dlLedgerPDF()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download PDF</button>
+          </div>
+        </div>
+        <div class="panel" style="margin-bottom:18px;">
+          <div class="ph"><div class="ph-title">New Entry</div></div>
+          <div class="pb">
+            <div class="fr">
+              <div class="fg"><label class="fl">Date</label><input type="date" class="fi" id="l-date"></div>
+              <div class="fg"><label class="fl">Type</label><select class="fs" id="l-type"><option value="Credit">Credit</option><option value="Debit">Debit</option></select></div>
+              <div class="fg"><label class="fl">Amount (₹)</label><input type="number" class="fi" id="l-amt" placeholder="0"></div>
+              <div class="fg"><label class="fl">Particulars</label><input type="text" class="fi" id="l-part" placeholder="Description"></div>
             </div>
-            <div class="form-group">
-              <label class="form-label">Client Address</label>
-              <input type="text" class="form-input" id="inv-address" placeholder="e.g. P.P. Road, Rehabari, Guwahati – 781008">
+            <button class="bp" onclick="addLedger()">Add Entry</button>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="ph"><div class="ph-title">Transaction History</div></div>
+          <div class="pb" style="padding:0;">
+            <div class="tw"><table><thead><tr><th>Date</th><th>Type</th><th>Particulars</th><th>Amount</th><th></th></tr></thead><tbody id="l-body"></tbody></table>
+            <div id="l-empty" class="empty" style="display:none;"><div class="ei2">📋</div><div class="et">No entries yet</div><div class="es">Add your first entry above</div></div>
+            <div id="mob-l-cards" style="display:none;padding:11px;"></div></div>
+            <div class="tbar" id="l-tots" style="margin:13px;display:none;">
+              <div class="tc"><div class="tc-l">Total Credits</div><div class="tc-v vcr" id="t-cr">₹0</div></div>
+              <div class="tc"><div class="tc-l">Total Debits</div><div class="tc-v vdb" id="t-db">₹0</div></div>
+              <div class="tc" style="flex:1;"><div class="tc-l">Net Balance</div><div class="tc-v vnt" id="t-net">₹0</div></div>
             </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">Reference / Case Details</label>
-            <textarea class="form-input" id="inv-reference" rows="3" style="height:auto;padding:12px 14px;resize:vertical;font-size:13px;" placeholder="(i) T.S. No. 413/2022 – Client Name -Vs- Opposite Party&#10;(ii) Misc.(J) Case No. 545/2022 – Case Title&#10;(iii) CRP (I/O) No. 29/2023 – Case Title"></textarea>
-          </div>
         </div>
       </div>
 
-      <!-- Services Table -->
-      <div class="panel" style="margin-bottom:18px;">
-        <div class="panel-header">
-          <div class="panel-title">Description of Services</div>
-          <button class="btn-primary" style="font-size:11px;padding:8px 18px;" onclick="addServiceRow()">+ Add Row</button>
+      <!-- EXPENSES -->
+      <div class="page" id="page-expenses">
+        <div class="sh"><div class="sh-eye">Finance</div><div class="sh-title">Expense Tracker</div><div class="sh-rule"></div></div>
+        <div class="panel" style="margin-bottom:18px;">
+          <div class="ph"><div class="ph-title">Record Expense</div></div>
+          <div class="pb">
+            <div class="fr">
+              <div class="fg"><label class="fl">Date</label><input type="date" class="fi" id="e-date"></div>
+              <div class="fg"><label class="fl">Category</label><select class="fs" id="e-cat"><option value="Salary">Salary</option><option value="Rent">Rent</option><option value="Other">Other</option></select></div>
+              <div class="fg"><label class="fl">Amount (₹)</label><input type="number" class="fi" id="e-amt" placeholder="0"></div>
+              <div class="fg"><label class="fl">Description</label><input type="text" class="fi" id="e-desc" placeholder="Optional"></div>
+            </div>
+            <button class="bp" onclick="addExpense()">Add Expense</button>
+          </div>
         </div>
-        <div class="panel-body" style="padding:0;">
-          <table class="inv-svc-table">
-            <thead>
-              <tr>
-                <th style="width:40px;text-align:center;">Sl.</th>
-                <th>Description of Services</th>
-                <th style="width:130px;text-align:right;padding-right:16px;">Amount (₹)</th>
-                <th style="width:44px;"></th>
-              </tr>
-            </thead>
-            <tbody id="inv-svc-body"></tbody>
-          </table>
+        <div class="panel">
+          <div class="ph"><div class="ph-title">All Expenses</div><div id="e-tot" style="font-family:var(--font-d);font-size:17px;color:var(--gold);font-weight:600;"></div></div>
+          <div class="pb"><div class="el" id="e-list"></div><div id="e-empty" class="empty" style="display:none;"><div class="ei2">💼</div><div class="et">No expenses yet</div><div class="es">Add your first expense above</div></div></div>
         </div>
       </div>
 
-      <!-- Payment Summary -->
-      <div class="panel" style="margin-bottom:20px;">
-        <div class="panel-header"><div class="panel-title">Payment Summary</div></div>
-        <div class="panel-body">
-          <div class="form-group" style="margin-bottom:18px;">
-            <label class="form-label">Advance Already Received (₹)</label>
-            <input type="number" class="form-input" id="inv-advance" placeholder="0 if no advance" style="max-width:240px;" oninput="updateInvTotals()">
-          </div>
-          <div class="inv-totals-box">
-            <div class="inv-tot-row"><span class="tot-label">Sub-Total</span><span class="tot-val" id="inv-subtotal">₹ 0</span></div>
-            <div class="inv-tot-row"><span class="tot-label">Advance Received</span><span class="tot-val" id="inv-adv-display">₹ 0</span></div>
-            <div class="inv-tot-row balance"><span class="tot-label">Balance Due</span><span class="tot-val" id="inv-balance">₹ 0</span></div>
+      <!-- INVOICE -->
+      <div class="page" id="page-invoice">
+        <div class="sh"><div class="sh-eye">Documents</div><div class="sh-title">Invoice Generator</div><div class="sh-rule"></div></div>
+        <div class="inv-prev">
+          <div class="inv-name">BIMAL KUMAR JAIN</div>
+          <div class="inv-deg">M.COM &nbsp;·&nbsp; LLB</div>
+          <div class="inv-ln"></div>
+          <div class="inv-dt"><b>ADVOCATE · GAUHATI HIGH COURT</b><br>Enrollment No. : 26 of 1997 &nbsp;|&nbsp; Chamber : S.K Jain &amp; Associates<br>Bara Bazar Pandu, Jain Mandir Bye Lane, P.O. Pandu, Guwahati – 781012</div>
+        </div>
+        <div class="panel" style="margin-bottom:14px;">
+          <div class="ph"><div class="ph-title">Invoice Details</div></div>
+          <div class="pb">
+            <div class="fr" style="grid-template-columns:1fr 1fr;">
+              <div class="fg"><label class="fl">Invoice Number</label><input type="text" class="fi" id="inv-no" placeholder="e.g. SKJ/01/2026-27"></div>
+              <div class="fg"><label class="fl">Date</label><input type="date" class="fi" id="inv-date"></div>
+            </div>
+            <div class="fr" style="grid-template-columns:1fr 1fr;">
+              <div class="fg"><label class="fl">Billed To (Client Name)</label><input type="text" class="fi" id="inv-client" placeholder="e.g. M/S AADHAR"></div>
+              <div class="fg"><label class="fl">Client Address</label><input type="text" class="fi" id="inv-addr" placeholder="e.g. P.P. Road, Rehabari, Guwahati"></div>
+            </div>
+            <div class="fg"><label class="fl">Reference / Case Details</label><textarea class="fi" id="inv-ref" rows="3" style="height:auto;padding:10px 13px;resize:vertical;font-size:13px;" placeholder="(i) T.S. No. 413/2022 – Case Title&#10;(ii) Misc.(J) Case No. 545/2022&#10;(iii) CRP (I/O) No. 29/2023"></textarea></div>
           </div>
         </div>
+        <div class="panel" style="margin-bottom:14px;">
+          <div class="ph"><div class="ph-title">Description of Services</div><button class="bp" style="font-size:11px;padding:7px 15px;" onclick="addSvcRow()">+ Add Row</button></div>
+          <div class="pb" style="padding:0;"><table class="svc-tbl"><thead><tr><th style="width:38px;text-align:center;">Sl.</th><th>Description of Services</th><th style="width:115px;text-align:right;padding-right:13px;">Amount (₹)</th><th style="width:38px;"></th></tr></thead><tbody id="svc-body"></tbody></table></div>
+        </div>
+        <div class="panel" style="margin-bottom:16px;">
+          <div class="ph"><div class="ph-title">Payment Summary</div></div>
+          <div class="pb">
+            <div class="fg" style="margin-bottom:14px;max-width:240px;"><label class="fl">Advance Received (₹)</label><input type="number" class="fi" id="inv-adv" placeholder="0" oninput="calcTots()"></div>
+            <div class="inv-tots">
+              <div class="itr"><span class="itl">Sub-Total</span><span class="itv" id="inv-sub">₹ 0</span></div>
+              <div class="itr"><span class="itl">Advance Received</span><span class="itv" id="inv-adv-d">₹ 0</span></div>
+              <div class="itr bal"><span class="itl">Balance Due</span><span class="itv" id="inv-bal">₹ 0</span></div>
+            </div>
+          </div>
+        </div>
+        <button class="b-inv" onclick="genInvoicePDF()">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Invoice PDF
+        </button>
       </div>
-
-      <!-- Download Button -->
-      <button class="btn-gen-invoice" onclick="generateInvoicePDF()">
-        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Download Invoice PDF
-      </button>
-    </div>
-  </main>
+    </main>
+  </div>
 </div>
 
-<!-- Save indicator toast -->
-<div class="save-indicator" id="save-indicator">✓ Saved to cloud</div>
+<div class="toast" id="toast">✓ Saved to cloud</div>
 
-<!-- ════ FIREBASE ════
-     !! REPLACE THE CONFIG BELOW WITH YOUR OWN !!
-     Instructions are after the closing script tag.
--->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-
-<script>
-  // ══════════════════════════════════════════════════════════════════
-  //  STEP 1 — PASTE YOUR FIREBASE CONFIG HERE
-  //  Get it from: Firebase Console → Your Project → Project Settings
-  //  → General tab → "Your apps" → Web app → Config
-  // ══════════════════════════════════════════════════════════════════
-  const firebaseConfig = {
-    apiKey:            "AIzaSyBx0tUJ38w0DDLduBuRh6ZeyKmA6GQ7XLY",
-    authDomain:        "bk-jain-dashboard.firebaseapp.com",
-    projectId:         "bk-jain-dashboard",
-    storageBucket:     "bk-jain-dashboard.firebasestorage.app",
-    messagingSenderId: "736212575525",
-    appId:             "1:736212575525:web:44850cda3a1cab500526cc"
-  };
-  // ══════════════════════════════════════════════════════════════════
-
-  // Config validation — shows a helpful message if not yet set up
-  const configReady = !firebaseConfig.apiKey.includes('PASTE');
-
-  if (!configReady) {
-    document.getElementById('auth-error').textContent =
-      '⚠ Firebase not configured yet. Follow the setup instructions.';
-  }
-
-  let auth, db;
-  try {
-    firebase.initializeApp(firebaseConfig);
-    auth = firebase.auth();
-    db   = firebase.firestore();
-    window._firebaseReady = true;
-  } catch(e) {
-    console.error('Firebase init failed:', e);
-    document.getElementById('auth-error').textContent =
-      '⚠ Connection error. Please refresh the page and try again. (' + e.message + ')';
-  }
-
-  // ── DATA ──
-  let ledger   = [];
-  let expenses = [];
-  let hearings = [];
-  let currentUser = null;
-  let saveTimer;
-
-  // ── SCREEN HELPERS — defined earlier in page head, overriding here with full version ──
-  window._showScreen = showScreen; // keep reference
-  showScreen = function(id) {
-    ['landing','auth-screen','loading-screen'].forEach(s => {
-      const el = document.getElementById(s);
-      if (el) { el.style.display = 'none'; el.classList.add('hidden'); }
-    });
-    document.getElementById('app').style.display = 'none';
-    if (id === 'app') {
-      document.getElementById('app').style.display = 'flex';
-    } else {
-      const el = document.getElementById(id);
-      if (el) { el.style.display = 'flex'; el.classList.remove('hidden'); }
-    }
-  };
-
-  // ── LANDING → AUTH ──
-  goToAuth = function() {
-    const landing = document.getElementById('landing');
-    if (landing) {
-      landing.style.opacity = '0';
-      landing.style.transform = 'translateY(-24px)';
-      landing.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
-      landing.style.pointerEvents = 'none';
-    }
-    setTimeout(() => showScreen('auth-screen'), 700);
-  };
-
-  // ── GOOGLE SIGN-IN (redirect method — works on all browsers/mobile) ──
-  function signInWithGoogle() {
-    if (!configReady) {
-      document.getElementById('auth-error').textContent =
-        '⚠ Please configure Firebase first.';
-      return;
-    }
-    if (!auth) {
-      document.getElementById('auth-error').textContent =
-        '⚠ Firebase not loaded. Please refresh and try again.';
-      return;
-    }
-    const btn = document.getElementById('google-btn');
-    if (btn) { btn.classList.add('loading'); btn.textContent = 'Redirecting…'; }
-    document.getElementById('auth-error').textContent = '';
-    try {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      provider.addScope('email');
-      provider.addScope('profile');
-      sessionStorage.setItem('googleRedirectPending', '1');
-      auth.signInWithRedirect(provider);
-    } catch(err) {
-      if (btn) { btn.classList.remove('loading'); btn.textContent = 'Continue with Google'; }
-      document.getElementById('auth-error').textContent = 'Error: ' + err.message;
-    }
-  }
-
-  // ── SIGN OUT ──
-  function signOut() {
-    if (confirm('Sign out of B.K Jain & Associates dashboard?')) {
-      auth.signOut().then(() => {
-        ledger = []; expenses = []; hearings = [];
-        currentUser = null;
-        showScreen('landing');
-        document.getElementById('landing').classList.remove('exit', 'hidden');
-      });
-    }
-  }
-
-  // ── HANDLE REDIRECT RESULT (called on page load after Google redirect) ──
-  if (auth) {
-    // Show loading screen immediately if we're returning from Google redirect
-    if (document.referrer.includes('accounts.google.com') ||
-        sessionStorage.getItem('googleRedirectPending')) {
-      showScreen('loading-screen');
-    }
-    auth.getRedirectResult().then(result => {
-      sessionStorage.removeItem('googleRedirectPending');
-      // onAuthStateChanged below will handle the actual login
-    }).catch(err => {
-      console.error('Redirect error:', err);
-      showScreen('auth-screen');
-      const errEl = document.getElementById('auth-error');
-      if (errEl) {
-        if (err.code === 'auth/unauthorized-domain') {
-          errEl.textContent = '⚠ Domain not authorized. Add bkjain.netlify.app to Firebase → Authentication → Settings → Authorized domains.';
-        } else {
-          errEl.textContent = '⚠ Sign-in failed: ' + err.message;
-        }
-      }
-    });
-  }
-
-  // ── AUTH STATE LISTENER ──
-  if (auth) auth.onAuthStateChanged(async user => {
-    if (user) {
-      currentUser = user;
-      showScreen('loading-screen');
-      await loadData();
-      setupUser(user);
-      showScreen('app');
-      renderAll();
-      if(svcRows.length === 0) addServiceRow();
-    } else {
-      currentUser = null;
-    }
-  });
-
-  // ── FIRESTORE LOAD ──
-  async function loadData() {
-    try {
-      const doc = await db.collection('users').doc(currentUser.uid).get();
-      if (doc.exists) {
-        const d = doc.data();
-        ledger   = d.ledger   || [];
-        expenses = d.expenses || [];
-        hearings = d.hearings || [];
-      }
-    } catch (e) { console.error('Load error:', e); }
-  }
-
-  // ── FIRESTORE SAVE (debounced) ──
-  function save() {
-    if (!currentUser) return;
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(async () => {
-      try {
-        await db.collection('users').doc(currentUser.uid).set({ ledger, expenses, hearings });
-        const ind = document.getElementById('save-indicator');
-        ind.classList.add('show');
-        setTimeout(() => ind.classList.remove('show'), 2200);
-      } catch (e) { console.error('Save error:', e); }
-    }, 600);
-  }
-
-  // ── SETUP USER UI ──
-  function setupUser(user) {
-    document.getElementById('user-name').textContent = user.displayName || user.email || 'User';
-    const initials = (user.displayName || 'U').split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
-    // Desktop sidebar avatar
-    const wrap = document.getElementById('user-avatar-wrap');
-    if (user.photoURL) {
-      wrap.innerHTML = `<img src="${user.photoURL}" class="user-avatar" alt="Avatar">`;
-    } else {
-      wrap.innerHTML = `<div class="user-avatar-placeholder">${initials}</div>`;
-    }
-    // Mobile topbar avatar
-    const mobWrap = document.getElementById('mob-avatar-wrap');
-    if (mobWrap) {
-      if (user.photoURL) {
-        mobWrap.innerHTML = `<img src="${user.photoURL}" class="mob-avatar" alt="Avatar">`;
-      } else {
-        mobWrap.innerHTML = `<div class="mob-avatar-placeholder">${initials}</div>`;
-      }
-    }
-  }
-
-  // ── DATE ──
-  const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
-  document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('en-IN', opts);
-  const today = new Date().toISOString().split('T')[0];
-  ['l-date','e-date','h-date','inv-date'].forEach(id => { const el = document.getElementById(id); if (el) el.value = today; });
-  (function() {
-    const firstOfMonth = new Date(); firstOfMonth.setDate(1);
-    document.getElementById('pdf-from').value = firstOfMonth.toISOString().split('T')[0];
-    document.getElementById('pdf-to').value   = today;
-  })();
-
-  // ── NAVIGATION ──
-  const titles = { dashboard: 'Dashboard', ledger: 'Fee Ledger', expenses: 'Expense Tracker', invoice: 'Invoice Generator' };
-  const mobLabels = { dashboard: 'Overview', ledger: 'Fee Ledger', expenses: 'Expenses', invoice: 'Invoice' };
-  function mobNav(id, mobNavId, label) {
-    // update mobile bottom nav active state
-    document.querySelectorAll('.mob-nav-item').forEach(n => n.classList.remove('active'));
-    const mEl = document.getElementById(mobNavId);
-    if (mEl) mEl.classList.add('active');
-    showPage(id, null, label);
-  }
-  function showPage(id, el, mobLabel) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById('page-' + id).classList.add('active');
-    if (el) el.classList.add('active');
-    document.getElementById('topbar-title').textContent = titles[id] || 'Dashboard';
-    const lbl = mobLabel || mobLabels[id] || 'Dashboard';
-    const mobLabelEl = document.getElementById('mob-page-label');
-    if (mobLabelEl) mobLabelEl.textContent = lbl;
-    renderAll();
-  }
-
-  // ── RENDER ALL ──
-  function renderAll() { renderDashboard(); renderLedger(); renderExpenses(); renderHearings(); }
-
-  // ── FORMAT ──
-  function fmt(n) { return Number(n).toLocaleString('en-IN'); }
-  function fmtDate(d) { return new Date(d + 'T00:00:00').toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'}); }
-
-  // ── DASHBOARD ──
-  function renderDashboard() {
-    const totalIncome = ledger.filter(e => e.type === 'Credit').reduce((s,e) => s + Number(e.amount), 0);
-    const totalDebit  = ledger.filter(e => e.type === 'Debit').reduce((s,e) => s + Number(e.amount), 0);
-    const totalExp    = expenses.reduce((s,e) => s + Number(e.amount), 0);
-    document.getElementById('stat-income').textContent   = fmt(totalIncome);
-    document.getElementById('stat-expenses').textContent = fmt(totalExp);
-    document.getElementById('stat-pending').textContent  = fmt(totalDebit);
-    document.getElementById('stat-hearings').textContent = hearings.length;
-  }
-
-  // ── HEARINGS ──
-  function addHearing() {
-    const c = document.getElementById('h-case').value.trim();
-    const ct = document.getElementById('h-court').value.trim();
-    const d = document.getElementById('h-date').value;
-    if (!c || !d) { alert('Please fill Case Name and Date.'); return; }
-    hearings.push({ id: Date.now(), case: c, court: ct || 'Court', date: d });
-    save();
-    document.getElementById('h-case').value = '';
-    document.getElementById('h-court').value = '';
-    document.getElementById('h-date').value = today;
-    renderHearings(); renderDashboard();
-  }
-  function deleteHearing(id) { hearings = hearings.filter(h => h.id !== id); save(); renderHearings(); renderDashboard(); }
-  function renderHearings() {
-    const list = document.getElementById('hearings-list');
-    if (!hearings.length) { list.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-text">No hearings scheduled</div><div class="empty-sub">Add your upcoming hearing cases below</div></div>'; return; }
-    const sorted = [...hearings].sort((a,b) => new Date(a.date) - new Date(b.date));
-    list.innerHTML = sorted.map(h => {
-      const isToday = h.date === today;
-      return `<div class="hearing-card"><div class="hearing-date">${fmtDate(h.date)}</div><div class="hearing-case">${h.case}</div><div class="hearing-court">${h.court}</div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;"><span class="hearing-status ${isToday?'status-today':'status-upcoming'}">${isToday?'Today':'Upcoming'}</span><button class="delete-btn" onclick="deleteHearing(${h.id})">×</button></div></div>`;
-    }).join('');
-  }
-
-  // ── LEDGER ──
-  function addLedger() {
-    const d = document.getElementById('l-date').value;
-    const t = document.getElementById('l-type').value;
-    const a = parseFloat(document.getElementById('l-amount').value);
-    const p = document.getElementById('l-particulars').value.trim();
-    if (!d || isNaN(a) || a <= 0 || !p) { alert('Please fill all ledger fields.'); return; }
-    ledger.push({ id: Date.now(), date: d, type: t, amount: a, particulars: p });
-    save();
-    document.getElementById('l-amount').value = '';
-    document.getElementById('l-particulars').value = '';
-    renderLedger(); renderDashboard();
-  }
-  function deleteLedger(id) { ledger = ledger.filter(e => e.id !== id); save(); renderLedger(); renderDashboard(); }
-  function renderLedger() {
-    const tbody = document.getElementById('ledger-body');
-    const empty = document.getElementById('ledger-empty');
-    const totals = document.getElementById('ledger-totals');
-    const cards  = document.getElementById('ledger-cards');
-    if (!ledger.length) {
-      tbody.innerHTML = ''; if(cards) cards.innerHTML = '';
-      empty.style.display = 'block'; totals.style.display = 'none'; return;
-    }
-    empty.style.display = 'none'; totals.style.display = 'flex';
-    const sorted = [...ledger].sort((a,b) => new Date(b.date) - new Date(a.date));
-    tbody.innerHTML = sorted.map(e => `<tr><td>${fmtDate(e.date)}</td><td><span class="td-type-badge ${e.type==='Credit'?'badge-credit':'badge-debit'}">${e.type}</span></td><td>${e.particulars}</td><td class="${e.type==='Credit'?'td-credit':'td-debit'}">₹${fmt(e.amount)}</td><td><button class="delete-btn" onclick="deleteLedger(${e.id})">×</button></td></tr>`).join('');
-    if (cards) {
-      cards.innerHTML = sorted.map(e => `
-        <div class="ledger-mobile-card">
-          <div class="lmc-badge"><span class="td-type-badge ${e.type==='Credit'?'badge-credit':'badge-debit'}">${e.type}</span></div>
-          <div class="lmc-body">
-            <div class="lmc-particulars">${e.particulars}</div>
-            <div class="lmc-date">${fmtDate(e.date)}</div>
-          </div>
-          <div class="lmc-right">
-            <div class="lmc-amount ${e.type==='Credit'?'td-credit':'td-debit'}">₹${fmt(e.amount)}</div>
-            <button class="delete-btn" onclick="deleteLedger(${e.id})">×</button>
-          </div>
-        </div>`).join('');
-    }
-    const credits = ledger.filter(e => e.type==='Credit').reduce((s,e) => s+Number(e.amount), 0);
-    const debits  = ledger.filter(e => e.type==='Debit').reduce((s,e)  => s+Number(e.amount), 0);
-    document.getElementById('tot-credit').textContent = '₹' + fmt(credits);
-    document.getElementById('tot-debit').textContent  = '₹' + fmt(debits);
-    const net = credits - debits;
-    const netEl = document.getElementById('tot-net');
-    netEl.textContent = (net < 0 ? '-₹' : '₹') + fmt(Math.abs(net));
-    netEl.style.color = net < 0 ? '#B83030' : 'var(--gold)';
-  }
-
-  // ── EXPENSES ──
-  function addExpense() {
-    const d = document.getElementById('e-date').value;
-    const c = document.getElementById('e-cat').value;
-    const a = parseFloat(document.getElementById('e-amount').value);
-    const n = document.getElementById('e-desc').value.trim();
-    if (!d || isNaN(a) || a <= 0) { alert('Please enter a valid date and amount.'); return; }
-    expenses.push({ id: Date.now(), date: d, cat: c, amount: a, desc: n || c });
-    save();
-    document.getElementById('e-amount').value = '';
-    document.getElementById('e-desc').value = '';
-    renderExpenses(); renderDashboard();
-  }
-  function deleteExpense(id) { expenses = expenses.filter(e => e.id !== id); save(); renderExpenses(); renderDashboard(); }
-  function renderExpenses() {
-    const list = document.getElementById('expense-list');
-    const empty = document.getElementById('expense-empty');
-    const badge = document.getElementById('expense-total-badge');
-    if (!expenses.length) { list.innerHTML = ''; empty.style.display = 'block'; badge.textContent = ''; return; }
-    empty.style.display = 'none';
-    const total = expenses.reduce((s,e) => s+Number(e.amount), 0);
-    badge.textContent = 'Total: ₹' + fmt(total);
-    const sorted = [...expenses].sort((a,b) => new Date(b.date) - new Date(a.date));
-    const catClass = { Salary:'cat-salary', Rent:'cat-rent', Other:'cat-other' };
-    list.innerHTML = sorted.map(e => `<div class="expense-item"><div class="expense-left"><span class="expense-cat ${catClass[e.cat]||'cat-other'}">${e.cat}</span><div><div class="expense-name">${e.desc}</div><div class="expense-date-small">${fmtDate(e.date)}</div></div></div><div style="display:flex;align-items:center;gap:12px;"><div class="expense-amount">₹${fmt(e.amount)}</div><button class="delete-btn" onclick="deleteExpense(${e.id})">×</button></div></div>`).join('');
-  }
-
-  // ══ INVOICE GENERATOR ══════════════════════════════════════════════════════
-  let svcRows = [];
-  let svcCounter = 0;
-
-  function addServiceRow(desc='', amt='') {
-    svcCounter++;
-    const id = svcCounter;
-    svcRows.push(id);
-    const tbody = document.getElementById('inv-svc-body');
-    const tr = document.createElement('tr');
-    tr.id = 'svc-row-' + id;
-    tr.innerHTML = `
-      <td class="svc-sl">${svcRows.length}</td>
-      <td><input type="text" class="svc-desc-input" id="svc-desc-${id}" value="${desc}" placeholder="e.g. Appearance fees for hearing on 12/05/2026 before the High Court"></td>
-      <td style="text-align:right;"><input type="number" class="svc-amt-input" id="svc-amt-${id}" value="${amt}" placeholder="0" oninput="updateInvTotals()"></td>
-      <td><button class="delete-btn" onclick="removeServiceRow(${id})" style="margin:0 auto;display:flex;">×</button></td>
-    `;
-    tbody.appendChild(tr);
-    updateInvTotals();
-    // re-number all rows
-    renumberRows();
-  }
-
-  function removeServiceRow(id) {
-    svcRows = svcRows.filter(r => r !== id);
-    const el = document.getElementById('svc-row-' + id);
-    if (el) el.remove();
-    updateInvTotals();
-    renumberRows();
-  }
-
-  function renumberRows() {
-    svcRows.forEach((id, idx) => {
-      const sl = document.querySelector('#svc-row-' + id + ' .svc-sl');
-      if (sl) sl.textContent = idx + 1;
-    });
-  }
-
-  function updateInvTotals() {
-    let sub = 0;
-    svcRows.forEach(id => {
-      const v = parseFloat(document.getElementById('svc-amt-' + id)?.value || 0);
-      if (!isNaN(v)) sub += v;
-    });
-    const adv = parseFloat(document.getElementById('inv-advance')?.value || 0) || 0;
-    const bal = sub - adv;
-    document.getElementById('inv-subtotal').textContent    = '₹ ' + fmt(sub);
-    document.getElementById('inv-adv-display').textContent = '₹ ' + fmt(adv);
-    document.getElementById('inv-balance').textContent     = '₹ ' + fmt(bal < 0 ? 0 : bal);
-  }
-
-  // Number to words (Indian system)
-  function numToWords(n) {
-    const ones = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine',
-                  'Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen',
-                  'Seventeen','Eighteen','Nineteen'];
-    const tens_ = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
-    function w(num) {
-      if (num === 0) return '';
-      if (num < 20) return ones[num] + ' ';
-      if (num < 100) return tens_[Math.floor(num/10)] + (ones[num%10] ? ' ' + ones[num%10] + ' ' : ' ');
-      if (num < 1000) return ones[Math.floor(num/100)] + ' Hundred ' + w(num%100);
-      if (num < 100000) return w(Math.floor(num/1000)) + 'Thousand ' + w(num%1000);
-      if (num < 10000000) return w(Math.floor(num/100000)) + 'Lakh ' + w(num%100000);
-      return w(Math.floor(num/10000000)) + 'Crore ' + w(num%10000000);
-    }
-    const parts = Math.abs(n).toFixed(2).split('.');
-    let result = w(parseInt(parts[0])).trim() + ' Rupees';
-    if (parseInt(parts[1]) > 0) result += ' and ' + w(parseInt(parts[1])).trim() + ' Paise';
-    return result.trim() + ' Only';
-  }
-
-  async function generateInvoicePDF() {
-    const invNo    = document.getElementById('inv-no').value.trim() || 'SKJ/01/2026-27';
-    const invDate  = document.getElementById('inv-date').value;
-    const client   = document.getElementById('inv-client').value.trim() || 'Client Name';
-    const address  = document.getElementById('inv-address').value.trim();
-    const refText  = document.getElementById('inv-reference').value.trim();
-    const advVal   = parseFloat(document.getElementById('inv-advance').value || 0) || 0;
-
-    const services = svcRows.map((id, idx) => ({
-      sl: idx + 1,
-      desc: document.getElementById('svc-desc-' + id)?.value?.trim() || '',
-      amt:  parseFloat(document.getElementById('svc-amt-' + id)?.value || 0) || 0
-    })).filter(r => r.desc);
-
-    if (!services.length) { alert('Please add at least one service.'); return; }
-    if (!invDate) { alert('Please select an invoice date.'); return; }
-
-    const subtotal = services.reduce((s, r) => s + r.amt, 0);
-    const balance  = Math.max(0, subtotal - advVal);
-    const dateDisp = fmtDate(invDate);
-
-    // QR code (UPI)
-    let qrDataUrl = null;
-    if (window.QRCode) {
-      try {
-        qrDataUrl = await QRCode.toDataURL('upi://pay?pa=bimaljain100@oksbi&pn=BIMAL%20KUMAR%20JAIN&am=' + balance, {
-          width: 200, margin: 1, color: { dark: '#000000', light: '#ffffff' }
-        });
-      } catch(e) { console.warn('QR error', e); }
-    }
-
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
-    const W = 210, H = 297;
-    const ML = 13, MR = 13, CW = W - ML - MR; // 184mm content width
-
-    // ── COLOR PALETTE ──
-    const BLACK  = [0, 0, 0];
-    const DARK   = [20, 20, 35];
-    const NAVY   = [28, 40, 80];
-    const WHITE  = [255, 255, 255];
-    const LGRAY  = [245, 245, 245];
-    const MGRAY  = [220, 220, 220];
-    const DGRAY  = [100, 100, 100];
-    const BGRAY  = [50, 50, 50];
-    const BLUE   = [30, 60, 140];
-    const LBGRAY = [235, 238, 248];
-
-    // ── OUTER BORDER ──
-    doc.setDrawColor(...MGRAY); doc.setLineWidth(0.4);
-    doc.rect(ML - 2, 4, CW + 4, H - 8);
-
-    // ── HEADER — FIRM NAME ──
-    doc.setFont('times', 'bold'); doc.setFontSize(24);
-    doc.setTextColor(...BLACK);
-    doc.text('BIMAL KUMAR JAIN', W / 2, 14, { align: 'center' });
-
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5);
-    doc.setTextColor(...DGRAY);
-    doc.text('M.COM  ·  LLB', W / 2, 20, { align: 'center' });
-
-    // Separator line
-    doc.setDrawColor(...MGRAY); doc.setLineWidth(0.3);
-    doc.line(ML, 23, W - MR, 23);
-
-    // ADVOCATE line
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5);
-    doc.setTextColor(...BLACK);
-    doc.text('ADVOCATE  ·  GAUHATI HIGH COURT', W / 2, 28, { align: 'center' });
-
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5);
-    doc.setTextColor(...DGRAY);
-    doc.text('Enrollment No. : 26 of 1997', W / 2, 33, { align: 'center' });
-
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
-    doc.setTextColor(...BLACK);
-    doc.text('CHAMBER : S.K JAIN & ASSOCIATES', W / 2, 38, { align: 'center' });
-
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5);
-    doc.setTextColor(...DGRAY);
-    doc.text('Bara Bazar Pandu, Jain Mandir Bye Lane, P.O. Pandu, Guwahati – 781012', W / 2, 43, { align: 'center' });
-
-    // ── LEGAL INVOICE BANNER ──
-    doc.setFillColor(...DARK); doc.rect(ML - 2, 46, CW + 4, 10, 'F');
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(12);
-    doc.setTextColor(...WHITE);
-    doc.text('LEGAL INVOICE', W / 2, 53, { align: 'center' });
-
-    // ── INVOICE NO + DATE ROW ──
-    const infoY = 56;
-    doc.setDrawColor(...MGRAY); doc.setLineWidth(0.3);
-    doc.rect(ML - 2, infoY, CW + 4, 10);
-    // vertical divider
-    doc.line(W / 2, infoY, W / 2, infoY + 10);
-
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...BLACK);
-    doc.text('Invoice No.', ML + 2, infoY + 4);
-    doc.setFont('helvetica', 'normal');
-    doc.text(invNo, ML + 26, infoY + 4);
-
-    doc.setFont('helvetica', 'bold');
-    doc.text('Date :', W / 2 + 4, infoY + 4);
-    doc.setFont('helvetica', 'normal');
-    doc.text(dateDisp, W / 2 + 18, infoY + 4);
-
-    // ── BILLED TO + REFERENCE BOX ──
-    const btY = infoY + 10;
-    // estimate height: address lines + reference lines
-    const refLines = refText ? refText.split('
-').filter(l => l.trim()) : [];
-    const btHeight = Math.max(30, Math.max(3 + (address ? 2 : 0) * 5, refLines.length * 5 + 10) + 6);
-
-    doc.setDrawColor(...MGRAY); doc.setLineWidth(0.3);
-    doc.rect(ML - 2, btY, CW + 4, btHeight);
-    doc.line(W / 2, btY, W / 2, btY + btHeight);
-
-    // Billed To header
-    doc.setFillColor(...LGRAY); doc.rect(ML - 2, btY, (CW + 4) / 2, 7, 'F');
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...BLACK);
-    doc.text('Billed To', ML + 1, btY + 5);
-
-    // Reference header
-    doc.setFillColor(...LGRAY); doc.rect(W / 2, btY, (CW + 4) / 2, 7, 'F');
-    doc.text('Reference', W / 2 + 2, btY + 5);
-
-    // Billed To content
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5); doc.setTextColor(...BLACK);
-    doc.text(client, ML + 2, btY + 13);
-    if (address) {
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...DGRAY);
-      const addrLines = doc.splitTextToSize(address, (CW / 2) - 6);
-      doc.text(addrLines, ML + 2, btY + 19);
-    }
-
-    // Reference content
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...BLACK);
-    refLines.forEach((line, i) => {
-      const wrapped = doc.splitTextToSize(line.trim(), (CW / 2) - 6);
-      doc.text(wrapped, W / 2 + 2, btY + 13 + i * 5.5);
-    });
-
-    // ── SERVICES TABLE ──
-    const svcY = btY + btHeight + 1;
-    const tableRows = services.map(r => [
-      String(r.sl),
-      r.desc,
-      fmt(r.amt)
-    ]);
-
-    doc.autoTable({
-      startY: svcY,
-      head: [['Sl.', 'Description of Services', 'Amount (₹)']],
-      body: tableRows,
-      margin: { left: ML - 2, right: MR - 2 },
-      tableWidth: CW + 4,
-      styles: {
-        font: 'helvetica', fontSize: 8, cellPadding: { top: 3.5, bottom: 3.5, left: 4, right: 4 },
-        lineColor: MGRAY, lineWidth: 0.2, textColor: BLACK, valign: 'top', overflow: 'linebreak'
-      },
-      headStyles: {
-        fillColor: DARK, textColor: WHITE, fontStyle: 'bold', fontSize: 8,
-        cellPadding: { top: 4, bottom: 4, left: 4, right: 4 }
-      },
-      alternateRowStyles: { fillColor: [252, 252, 252] },
-      columnStyles: {
-        0: { halign: 'center', cellWidth: 12, fontStyle: 'bold' },
-        1: { cellWidth: 'auto' },
-        2: { halign: 'right', cellWidth: 30, fontStyle: 'bold' }
-      },
-      didDrawPage: () => {}
-    });
-
-    const afterTable = doc.lastAutoTable.finalY;
-
-    // ── TOTALS SECTION ──
-    const totX = W - MR - 2;
-    const totW = 65;
-    let ty = afterTable;
-
-    // Sub-Total row
-    doc.setFillColor(...LGRAY); doc.setDrawColor(...MGRAY); doc.setLineWidth(0.2);
-    doc.rect(totX - totW, ty, totW, 7, 'FD');
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...BLACK);
-    doc.text('Sub-Total', totX - totW + 4, ty + 5);
-    doc.text(fmt(subtotal), totX - 3, ty + 5, { align: 'right' });
-
-    ty += 7;
-    // Advance row
-    doc.setFillColor(255, 255, 255); doc.rect(totX - totW, ty, totW, 7, 'FD');
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
-    doc.text('Advance Received', totX - totW + 4, ty + 5);
-    doc.text(fmt(advVal), totX - 3, ty + 5, { align: 'right' });
-
-    ty += 7;
-    // Balance Due row
-    doc.setFillColor(...DARK); doc.rect(totX - totW, ty, totW, 8, 'FD');
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(...WHITE);
-    doc.text('Balance Due', totX - totW + 4, ty + 5.5);
-    doc.text(fmt(balance), totX - 3, ty + 5.5, { align: 'right' });
-    ty += 8;
-    doc.setTextColor(...BLACK);
-
-    // ── AMOUNT IN WORDS ──
-    const wordsY = ty + 2;
-    doc.setFillColor(...LGRAY); doc.setDrawColor(...MGRAY); doc.setLineWidth(0.2);
-    doc.rect(ML - 2, wordsY, CW + 4, 9, 'FD');
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...BLACK);
-    const wordsText = '■ ' + numToWords(balance) + ' (Balance Due)';
-    doc.text(wordsText, ML + 2, wordsY + 5.5);
-
-    // ── BOTTOM SECTION: Bank | QR | Signature ──
-    const botY = wordsY + 11;
-    const colW = (CW + 4) / 3;
-
-    doc.setDrawColor(...MGRAY); doc.setLineWidth(0.25);
-    doc.rect(ML - 2, botY, CW + 4, 48);
-    doc.line(ML - 2 + colW, botY, ML - 2 + colW, botY + 48);
-    doc.line(ML - 2 + colW * 2, botY, ML - 2 + colW * 2, botY + 48);
-
-    // BANK DETAILS
-    doc.setFillColor(...BLUE); doc.rect(ML - 2, botY, colW, 7, 'F');
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...WHITE);
-    doc.text('BANK DETAILS', ML - 2 + colW / 2, botY + 5, { align: 'center' });
-
-    const bankData = [
-      ['Bank', 'State Bank of India'],
-      ['Branch', 'Pan Bazar, Guwahati'],
-      ['A/C No.', '10823998281'],
-      ['IFSC', 'SBIN0000078'],
-      ['UPI', 'bimaljain100@oksbi'],
-    ];
-    let bRow = botY + 10;
-    bankData.forEach(([label, val]) => {
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...BGRAY);
-      doc.text(label, ML + 1, bRow);
-      doc.setFont('helvetica', 'normal'); doc.setTextColor(...BLACK);
-      doc.text(val, ML + 14, bRow);
-      bRow += 5.5;
-    });
-
-    // QR CODE column
-    const qrColX = ML - 2 + colW;
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...BGRAY);
-    doc.text('Scan to Pay', qrColX + colW / 2, botY + 12, { align: 'center' });
-
-    if (qrDataUrl) {
-      const qrSize = 28;
-      const qrX = qrColX + (colW - qrSize) / 2;
-      doc.addImage(qrDataUrl, 'PNG', qrX, botY + 14, qrSize, qrSize);
-    } else {
-      doc.setFillColor(...LGRAY); doc.setDrawColor(...MGRAY); doc.setLineWidth(0.2);
-      doc.rect(qrColX + 8, botY + 14, 28, 28, 'FD');
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...DGRAY);
-      doc.text('QR Code', qrColX + colW / 2, botY + 30, { align: 'center' });
-    }
-
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...BLACK);
-    doc.text('bimaljain100@oksbi', qrColX + colW / 2, botY + 44, { align: 'center' });
-
-    // SIGNATURE column
-    const sigColX = ML - 2 + colW * 2;
-    doc.setDrawColor(...MGRAY); doc.setLineWidth(0.3);
-    doc.line(sigColX + 6, botY + 38, sigColX + colW - 6, botY + 38);
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...BLACK);
-    doc.text('(BIMAL KUMAR JAIN)', sigColX + colW / 2, botY + 42, { align: 'center' });
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...DGRAY);
-    doc.text('Advocate, Gauhati High Court', sigColX + colW / 2, botY + 47, { align: 'center' });
-    doc.text('S.K Jain & Associates', sigColX + colW / 2, botY + 51.5, { align: 'center' });
-
-    // ── FOOTER ──
-    const footY = H - 8;
-    doc.setDrawColor(...MGRAY); doc.setLineWidth(0.3);
-    doc.line(ML - 2, footY - 3, W - MR + 2, footY - 3);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5); doc.setTextColor(...DGRAY);
-    doc.text(
-      'BIMAL KUMAR JAIN, M.COM, LLB  ·  Advocate, Gauhati High Court  ·  Cell: 98640-92418  ·  bimaljain100@gmail.com  ·  UPI: bimaljain100@oksbi',
-      W / 2, footY, { align: 'center' }
-    );
-
-    doc.save('SKJ_Invoice_' + invNo.replace(/\//g, '-') + '.pdf');
-  }
-  // ══ END INVOICE ═══════════════════════════════════════════════════════════
-
-</script>
-
-<!-- PDF Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
 <script>
-  function downloadLedgerPDF() {
-    const fromVal = document.getElementById('pdf-from').value;
-    const toVal   = document.getElementById('pdf-to').value;
-    if (!fromVal || !toVal) { alert('Please select both From and To dates.'); return; }
-    if (fromVal > toVal)    { alert('From date must be before To date.');     return; }
-    const from = new Date(fromVal + 'T00:00:00');
-    const to   = new Date(toVal   + 'T23:59:59');
-    const filtered = ledger.filter(e => { const d = new Date(e.date+'T00:00:00'); return d>=from && d<=to; }).sort((a,b) => new Date(a.date)-new Date(b.date));
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
-    const W = doc.internal.pageSize.getWidth();
-    const H = doc.internal.pageSize.getHeight();
-    const GOLD=[184,150,46],GOLD_LIGHT=[212,175,90],GOLD_FAINT=[251,245,230],INK=[26,20,8],INK_SOFT=[107,90,53],INK_MUTED=[155,138,101],WHITE=[255,255,255],CREAM=[255,253,247],GREEN_BG=[235,247,240],GREEN_FG=[42,122,74],RED_BG=[251,240,240],RED_FG=[184,48,48];
-    doc.setFillColor(...CREAM); doc.rect(0,0,W,H,'F');
-    doc.setFillColor(...INK); doc.rect(0,0,W,46,'F');
-    for(let x=0;x<W;x++){const t=x/W;doc.setFillColor(Math.round(GOLD[0]*(1-t)+GOLD_LIGHT[0]*t),Math.round(GOLD[1]*(1-t)+GOLD_LIGHT[1]*t),Math.round(GOLD[2]*(1-t)+GOLD_LIGHT[2]*t));doc.rect(x,0,1.2,2,'F');}
-    doc.setDrawColor(184,150,46); doc.setLineWidth(0.3);
-    doc.line(8,6,8,14); doc.line(8,6,16,6); doc.line(W-8,6,W-8,14); doc.line(W-8,6,W-16,6);
-    doc.setTextColor(...[240,224,176]); doc.setFont('times','bold'); doc.setFontSize(20);
-    doc.text('B.K Jain & Associates', W/2, 22, {align:'center'});
-    doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...GOLD);
-    doc.text('ADVOCATES & LEGAL CONSULTANTS', W/2, 29, {align:'center'});
-    doc.setDrawColor(...GOLD); doc.setLineWidth(0.4); doc.line(18,33,W-18,33);
-    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...[212,175,90]);
-    doc.text('FEE LEDGER STATEMENT', W/2, 40, {align:'center'});
-    const fromDisp=fmtDate(fromVal), toDisp=fmtDate(toVal);
-    const badgeY=54;
-    doc.setFillColor(...GOLD_FAINT); doc.setDrawColor(...GOLD); doc.setLineWidth(0.3);
-    doc.roundedRect(W/2-52,badgeY-5.5,104,10,2,2,'FD');
-    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...INK_SOFT);
-    doc.text('Period: '+fromDisp+' — '+toDisp, W/2, badgeY+1, {align:'center'});
-    doc.setFontSize(7); doc.setTextColor(...INK_MUTED);
-    const genDate = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
-    doc.text('Generated: '+genDate, W-14, badgeY+1, {align:'right'});
-    const tableTop=72;
-    if(!filtered.length){
-      doc.setFont('times','italic'); doc.setFontSize(13); doc.setTextColor(...INK_MUTED);
-      doc.text('No transactions found for the selected date range.', W/2, tableTop+20, {align:'center'});
-    } else {
-      const rows=filtered.map((e,i)=>[String(i+1),fmtDate(e.date),e.type,e.particulars,(e.type==='Credit'?'+ ':'- ')+'Rs. '+fmt(e.amount)]);
-      doc.autoTable({startY:tableTop,head:[['#','Date','Type','Particulars','Amount']],body:rows,margin:{left:14,right:14},styles:{font:'helvetica',fontSize:9,cellPadding:{top:4,bottom:4,left:5,right:5},lineColor:[220,200,140],lineWidth:0.2,textColor:INK,fillColor:WHITE,valign:'middle'},headStyles:{fillColor:INK,textColor:[240,224,176],fontStyle:'bold',fontSize:8,halign:'left',cellPadding:{top:5,bottom:5,left:5,right:5}},alternateRowStyles:{fillColor:GOLD_FAINT},columnStyles:{0:{halign:'center',cellWidth:10},1:{cellWidth:30},2:{cellWidth:20,halign:'center'},3:{cellWidth:'auto'},4:{halign:'right',cellWidth:36,fontStyle:'bold'}},didParseCell:function(data){if(data.section==='body'&&data.column.index===2){data.cell.styles.textColor=data.cell.raw==='Credit'?GREEN_FG:RED_FG;data.cell.styles.fontStyle='bold';}if(data.section==='body'&&data.column.index===4){data.cell.styles.textColor=data.cell.raw.startsWith('+')?GREEN_FG:RED_FG;}},didDrawPage:function(){const pg=doc.internal.getCurrentPageInfo().pageNumber,total=doc.internal.getNumberOfPages();doc.setFillColor(...INK);doc.rect(0,H-14,W,14,'F');doc.setDrawColor(...GOLD);doc.setLineWidth(0.3);doc.line(0,H-14,W,H-14);doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(...GOLD);doc.text('B.K Jain & Associates — Confidential Legal Document',14,H-5.5);doc.setTextColor(...[240,224,176]);doc.text('Page '+pg+' of '+total,W-14,H-5.5,{align:'right'});}});
-      const finalY=doc.lastAutoTable.finalY+8;
-      const credits=filtered.filter(e=>e.type==='Credit').reduce((s,e)=>s+Number(e.amount),0);
-      const debits=filtered.filter(e=>e.type==='Debit').reduce((s,e)=>s+Number(e.amount),0);
-      const net=credits-debits;
-      const bW=(W-28)/3, bH=18, bY=finalY;
-      doc.setFillColor(...GREEN_BG);doc.setDrawColor(...GREEN_FG);doc.setLineWidth(0.3);doc.roundedRect(14,bY,bW-3,bH,1.5,1.5,'FD');doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...INK_MUTED);doc.text('TOTAL CREDITS',14+bW/2-1.5,bY+5.5,{align:'center'});doc.setFontSize(12);doc.setTextColor(...GREEN_FG);doc.text('Rs. '+fmt(credits),14+bW/2-1.5,bY+13,{align:'center'});
-      const dX=14+bW;doc.setFillColor(...RED_BG);doc.setDrawColor(...RED_FG);doc.roundedRect(dX,bY,bW-3,bH,1.5,1.5,'FD');doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...INK_MUTED);doc.text('TOTAL DEBITS',dX+bW/2-1.5,bY+5.5,{align:'center'});doc.setFontSize(12);doc.setTextColor(...RED_FG);doc.text('Rs. '+fmt(debits),dX+bW/2-1.5,bY+13,{align:'center'});
-      const nX=14+bW*2;doc.setFillColor(...GOLD_FAINT);doc.setDrawColor(...GOLD);doc.setLineWidth(0.4);doc.roundedRect(nX,bY,bW-3,bH,1.5,1.5,'FD');doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...INK_MUTED);doc.text('NET BALANCE',nX+bW/2-1.5,bY+5.5,{align:'center'});doc.setFontSize(12);doc.setTextColor(...(net<0?RED_FG:GOLD));doc.text((net<0?'-':'')+'Rs. '+fmt(Math.abs(net)),nX+bW/2-1.5,bY+13,{align:'center'});
-      doc.setGState(new doc.GState({opacity:0.04}));doc.setFont('times','bold');doc.setFontSize(64);doc.setTextColor(...GOLD);doc.text('B.K JAIN',W/2,H/2+20,{align:'center',angle:35});doc.setGState(new doc.GState({opacity:1}));
-    }
-    doc.save('BKJain_Ledger_'+fromVal+'_to_'+toVal+'.pdf');
+// ── FIREBASE ──
+const fbCfg = {
+  apiKey:"AIzaSyBx0tUJ38w0DDLduBuRh6ZeyKmA6GQ7XLY",
+  authDomain:"bk-jain-dashboard.firebaseapp.com",
+  projectId:"bk-jain-dashboard",
+  storageBucket:"bk-jain-dashboard.firebasestorage.app",
+  messagingSenderId:"736212575525",
+  appId:"1:736212575525:web:44850cda3a1cab500526cc"
+};
+let auth,db;
+try{ firebase.initializeApp(fbCfg); auth=firebase.auth(); db=firebase.firestore(); }
+catch(e){ console.error('Firebase:',e); }
+
+// ── DATA ──
+let ledger=[],expenses=[],hearings=[],currentUser=null,saveTimer;
+
+// ── SCREENS ──
+function showScreen(id){
+  ['landing','auth-screen','loading-screen'].forEach(s=>{
+    const el=document.getElementById(s);
+    if(el){el.style.display='none';el.classList.add('hidden');}
+  });
+  const app=document.getElementById('app');
+  app.style.display='none';
+  if(id==='app'){app.style.display='flex';}
+  else{
+    const el=document.getElementById(id);
+    if(el){el.style.removeProperty('display');el.classList.remove('hidden');}
   }
+}
+
+function goToAuth(){
+  const l=document.getElementById('landing');
+  l.style.cssText+='opacity:0;transform:translateY(-24px);transition:opacity 0.7s ease,transform 0.7s ease;pointer-events:none;';
+  setTimeout(()=>showScreen('auth-screen'),680);
+}
+
+// ── AUTH ──
+function signIn(){
+  if(!auth){document.getElementById('a-err').textContent='⚠ Firebase not loaded. Please refresh.';return;}
+  const btn=document.getElementById('g-btn');
+  btn.classList.add('loading');btn.textContent='Redirecting to Google…';
+  document.getElementById('a-err').textContent='';
+  sessionStorage.setItem('gr','1');
+  const p=new firebase.auth.GoogleAuthProvider();
+  p.addScope('email');p.addScope('profile');
+  auth.signInWithRedirect(p).catch(e=>{
+    btn.classList.remove('loading');btn.textContent='Continue with Google';
+    document.getElementById('a-err').textContent='Error: '+e.message;
+  });
+}
+
+function doSignOut(){
+  if(!confirm('Sign out?'))return;
+  if(auth)auth.signOut();
+  ledger=[];expenses=[];hearings=[];currentUser=null;
+  sessionStorage.removeItem('gr');
+  const l=document.getElementById('landing');
+  l.style.cssText='';
+  showScreen('landing');
+}
+
+if(auth){
+  auth.getRedirectResult().then(r=>{
+    sessionStorage.removeItem('gr');
+  }).catch(e=>{
+    console.error('Redirect:',e);
+    showScreen('auth-screen');
+    const el=document.getElementById('a-err');
+    if(el&&e.code&&e.code!=='auth/no-auth-event'){
+      el.textContent=e.code==='auth/unauthorized-domain'
+        ?'⚠ Add bkjain.netlify.app to Firebase → Authentication → Settings → Authorized domains'
+        :'⚠ '+e.message;
+    }
+  });
+
+  auth.onAuthStateChanged(async user=>{
+    if(user){
+      currentUser=user;showScreen('loading-screen');
+      await loadData();setupUser(user);showScreen('app');
+      renderAll();if(svcRows.length===0)addSvcRow();
+    } else {
+      if(!sessionStorage.getItem('gr'))currentUser=null;
+    }
+  });
+}
+
+async function loadData(){
+  try{const s=await db.collection('users').doc(currentUser.uid).get();if(s.exists){const d=s.data();ledger=d.ledger||[];expenses=d.expenses||[];hearings=d.hearings||[];}}
+  catch(e){console.error('Load:',e);}
+}
+function save(){
+  if(!currentUser||!db)return;clearTimeout(saveTimer);
+  saveTimer=setTimeout(async()=>{
+    try{await db.collection('users').doc(currentUser.uid).set({ledger,expenses,hearings});
+    const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+    catch(e){console.error('Save:',e);}
+  },600);
+}
+
+function setupUser(u){
+  document.getElementById('u-name').textContent=u.displayName||u.email||'User';
+  const i=(u.displayName||'U').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  const av=u.photoURL?`<img src="${u.photoURL}" class="u-av" alt="">`:`<div class="u-av-ph">${i}</div>`;
+  const mav=u.photoURL?`<img src="${u.photoURL}" class="m-av" alt="">`:`<div class="m-av-ph">${i}</div>`;
+  document.getElementById('sb-av').innerHTML=av;
+  const mw=document.getElementById('m-av-wrap');if(mw)mw.innerHTML=mav;
+}
+
+// ── DATES ──
+document.getElementById('tb-date').textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+const today=new Date().toISOString().split('T')[0];
+['l-date','e-date','h-date','inv-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=today;});
+const fm=new Date();fm.setDate(1);
+document.getElementById('pdf-from').value=fm.toISOString().split('T')[0];
+document.getElementById('pdf-to').value=today;
+
+// ── NAV ──
+const TITLES={dashboard:'Dashboard',ledger:'Fee Ledger',expenses:'Expense Tracker',invoice:'Invoice Generator'};
+const MLBLS={dashboard:'Overview',ledger:'Fee Ledger',expenses:'Expenses',invoice:'Invoice'};
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+  document.getElementById('tb-title').textContent=TITLES[id]||'Dashboard';
+  const ml=document.getElementById('m-lbl');if(ml)ml.textContent=MLBLS[id]||'';
+  renderAll();
+}
+function navTo(id,mid,lbl){
+  document.querySelectorAll('.mn-item').forEach(n=>n.classList.remove('active'));
+  const m=document.getElementById(mid);if(m)m.classList.add('active');
+  showPage(id,null);
+}
+
+// ── RENDER ──
+function renderAll(){renderDash();renderLedger();renderExpenses();renderHearings();}
+const fmt=n=>Number(n).toLocaleString('en-IN');
+const fmtD=d=>new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+
+function renderDash(){
+  const inc=ledger.filter(e=>e.type==='Credit').reduce((s,e)=>s+Number(e.amount),0);
+  const deb=ledger.filter(e=>e.type==='Debit').reduce((s,e)=>s+Number(e.amount),0);
+  const exp=expenses.reduce((s,e)=>s+Number(e.amount),0);
+  document.getElementById('s-inc').textContent=fmt(inc);
+  document.getElementById('s-exp').textContent=fmt(exp);
+  document.getElementById('s-pnd').textContent=fmt(deb);
+  document.getElementById('s-hr').textContent=hearings.length;
+}
+
+function addHearing(){
+  const c=document.getElementById('h-case').value.trim();
+  const ct=document.getElementById('h-court').value.trim();
+  const d=document.getElementById('h-date').value;
+  if(!c||!d){alert('Please fill Case Name and Date.');return;}
+  hearings.push({id:Date.now(),case:c,court:ct||'Court',date:d});save();
+  document.getElementById('h-case').value='';document.getElementById('h-court').value='';document.getElementById('h-date').value=today;
+  renderHearings();renderDash();
+}
+function delH(id){hearings=hearings.filter(h=>h.id!==id);save();renderHearings();renderDash();}
+function renderHearings(){
+  const list=document.getElementById('h-list');
+  if(!hearings.length){list.innerHTML='<div class="empty"><div class="ei2">📅</div><div class="et">No hearings scheduled</div><div class="es">Add below</div></div>';return;}
+  list.innerHTML=[...hearings].sort((a,b)=>new Date(a.date)-new Date(b.date)).map(h=>{
+    const it=h.date===today;
+    return`<div class="hc"><div class="hc-date">${fmtD(h.date)}</div><div class="hc-case">${h.case}</div><div class="hc-court">${h.court}</div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;"><span class="hs ${it?'hs-t':'hs-u'}">${it?'Today':'Upcoming'}</span><button class="db" onclick="delH(${h.id})">×</button></div></div>`;
+  }).join('');
+}
+
+function addLedger(){
+  const d=document.getElementById('l-date').value,t=document.getElementById('l-type').value;
+  const a=parseFloat(document.getElementById('l-amt').value),p=document.getElementById('l-part').value.trim();
+  if(!d||isNaN(a)||a<=0||!p){alert('Please fill all fields.');return;}
+  ledger.push({id:Date.now(),date:d,type:t,amount:a,particulars:p});save();
+  document.getElementById('l-amt').value='';document.getElementById('l-part').value='';
+  renderLedger();renderDash();
+}
+function delL(id){ledger=ledger.filter(e=>e.id!==id);save();renderLedger();renderDash();}
+function renderLedger(){
+  const tbody=document.getElementById('l-body'),empty=document.getElementById('l-empty');
+  const tots=document.getElementById('l-tots'),cards=document.getElementById('mob-l-cards');
+  if(!ledger.length){tbody.innerHTML='';if(cards)cards.innerHTML='';empty.style.display='block';tots.style.display='none';return;}
+  empty.style.display='none';tots.style.display='flex';
+  const s=[...ledger].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  tbody.innerHTML=s.map(e=>`<tr><td>${fmtD(e.date)}</td><td><span class="tbg ${e.type==='Credit'?'bcr':'bdb'}">${e.type}</span></td><td>${e.particulars}</td><td class="${e.type==='Credit'?'tcr':'tdb'}">₹${fmt(e.amount)}</td><td><button class="db" onclick="delL(${e.id})">×</button></td></tr>`).join('');
+  if(cards)cards.innerHTML=s.map(e=>`<div class="lmc"><div class="lmc-b"><div class="lmc-p">${e.particulars}</div><div class="lmc-d">${fmtD(e.date)} &nbsp;·&nbsp; <span class="tbg ${e.type==='Credit'?'bcr':'bdb'}" style="font-size:9px;">${e.type}</span></div></div><div class="lmc-r"><div class="lmc-a ${e.type==='Credit'?'tcr':'tdb'}">₹${fmt(e.amount)}</div><button class="db" onclick="delL(${e.id})">×</button></div></div>`).join('');
+  const cr=ledger.filter(e=>e.type==='Credit').reduce((s,e)=>s+Number(e.amount),0);
+  const db2=ledger.filter(e=>e.type==='Debit').reduce((s,e)=>s+Number(e.amount),0);
+  document.getElementById('t-cr').textContent='₹'+fmt(cr);
+  document.getElementById('t-db').textContent='₹'+fmt(db2);
+  const net=cr-db2;const nel=document.getElementById('t-net');
+  nel.textContent=(net<0?'-₹':'₹')+fmt(Math.abs(net));nel.style.color=net<0?'#B83030':'var(--gold)';
+}
+
+function addExpense(){
+  const d=document.getElementById('e-date').value,c=document.getElementById('e-cat').value;
+  const a=parseFloat(document.getElementById('e-amt').value),n=document.getElementById('e-desc').value.trim();
+  if(!d||isNaN(a)||a<=0){alert('Please enter a valid date and amount.');return;}
+  expenses.push({id:Date.now(),date:d,cat:c,amount:a,desc:n||c});save();
+  document.getElementById('e-amt').value='';document.getElementById('e-desc').value='';
+  renderExpenses();renderDash();
+}
+function delE(id){expenses=expenses.filter(e=>e.id!==id);save();renderExpenses();renderDash();}
+function renderExpenses(){
+  const list=document.getElementById('e-list'),empty=document.getElementById('e-empty'),badge=document.getElementById('e-tot');
+  if(!expenses.length){list.innerHTML='';empty.style.display='block';badge.textContent='';return;}
+  empty.style.display='none';
+  const tot=expenses.reduce((s,e)=>s+Number(e.amount),0);badge.textContent='Total: ₹'+fmt(tot);
+  const cats={Salary:'csal',Rent:'crnt',Other:'coth'};
+  list.innerHTML=[...expenses].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(e=>`<div class="ei"><div class="ei-l"><span class="ecat ${cats[e.cat]||'coth'}">${e.cat}</span><div><div class="en">${e.desc}</div><div class="ed">${fmtD(e.date)}</div></div></div><div style="display:flex;align-items:center;gap:9px;"><div class="ea">₹${fmt(e.amount)}</div><button class="db" onclick="delE(${e.id})">×</button></div></div>`).join('');
+}
+
+// ── INVOICE ──
+let svcRows=[],svcCtr=0;
+function addSvcRow(desc='',amt=''){
+  svcCtr++;const id=svcCtr;svcRows.push(id);
+  const tr=document.createElement('tr');tr.id='sr-'+id;
+  tr.innerHTML=`<td class="svc-sl">${svcRows.length}</td><td><input type="text" class="svc-di" id="sd-${id}" value="${desc}" placeholder="e.g. Appearance fee for hearing on 12/05/2026"></td><td style="text-align:right;"><input type="number" class="svc-ai" id="sa-${id}" value="${amt}" placeholder="0" oninput="calcTots()"></td><td><button class="db" onclick="delSvc(${id})" style="margin:0 auto;display:flex;">×</button></td>`;
+  document.getElementById('svc-body').appendChild(tr);calcTots();reNum();
+}
+function delSvc(id){svcRows=svcRows.filter(r=>r!==id);const el=document.getElementById('sr-'+id);if(el)el.remove();calcTots();reNum();}
+function reNum(){svcRows.forEach((id,i)=>{const el=document.querySelector('#sr-'+id+' .svc-sl');if(el)el.textContent=i+1;});}
+function calcTots(){
+  const sub=svcRows.reduce((s,id)=>{const v=parseFloat(document.getElementById('sa-'+id)?.value||0);return s+(isNaN(v)?0:v);},0);
+  const adv=parseFloat(document.getElementById('inv-adv')?.value||0)||0;
+  const bal=Math.max(0,sub-adv);
+  document.getElementById('inv-sub').textContent='₹ '+fmt(sub);
+  document.getElementById('inv-adv-d').textContent='₹ '+fmt(adv);
+  document.getElementById('inv-bal').textContent='₹ '+fmt(bal);
+}
+
+function n2w(n){
+  const ones=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+  const tens=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+  function w(x){if(x===0)return '';if(x<20)return ones[x]+' ';if(x<100)return tens[Math.floor(x/10)]+(x%10?' '+ones[x%10]+' ':' ');if(x<1000)return ones[Math.floor(x/100)]+' Hundred '+w(x%100);if(x<100000)return w(Math.floor(x/1000))+'Thousand '+w(x%1000);if(x<10000000)return w(Math.floor(x/100000))+'Lakh '+w(x%100000);return w(Math.floor(x/10000000))+'Crore '+w(x%10000000);}
+  const p=Math.abs(n).toFixed(2).split('.');let r=w(parseInt(p[0])).trim()+' Rupees';if(parseInt(p[1])>0)r+=' and '+w(parseInt(p[1])).trim()+' Paise';return r.trim()+' Only';
+}
+
+async function genInvoicePDF(){
+  const invNo=document.getElementById('inv-no').value.trim()||'SKJ/01/2026-27';
+  const invDate=document.getElementById('inv-date').value;
+  const client=document.getElementById('inv-client').value.trim()||'Client Name';
+  const address=document.getElementById('inv-addr').value.trim();
+  const refText=document.getElementById('inv-ref').value.trim();
+  const advVal=parseFloat(document.getElementById('inv-adv').value||0)||0;
+  const svcs=svcRows.map((id,i)=>({sl:i+1,desc:document.getElementById('sd-'+id)?.value?.trim()||'',amt:parseFloat(document.getElementById('sa-'+id)?.value||0)||0})).filter(r=>r.desc);
+  if(!svcs.length){alert('Please add at least one service.');return;}
+  if(!invDate){alert('Please select an invoice date.');return;}
+  const sub=svcs.reduce((s,r)=>s+r.amt,0),bal=Math.max(0,sub-advVal);
+  const dateD=fmtD(invDate);
+  let qr=null;
+  if(window.QRCode){try{qr=await QRCode.toDataURL('upi://pay?pa=bimaljain100@oksbi&pn=BIMAL%20KUMAR%20JAIN&am='+bal,{width:200,margin:1});}catch(e){}}
+  const {jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const W=210,H=297,ML=13,MR=13,CW=W-ML-MR;
+  const BK=[0,0,0],WH=[255,255,255],DK=[20,20,35],LG=[245,245,245],MG=[210,210,210],DG=[100,100,100],BG=[50,50,50],BL=[30,60,140];
+  doc.setDrawColor(...MG);doc.setLineWidth(0.4);doc.rect(ML-2,4,CW+4,H-8);
+  doc.setFont('times','bold');doc.setFontSize(24);doc.setTextColor(...BK);doc.text('BIMAL KUMAR JAIN',W/2,14,{align:'center'});
+  doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(...DG);doc.text('M.COM  \u00b7  LLB',W/2,20,{align:'center'});
+  doc.setDrawColor(...MG);doc.setLineWidth(0.3);doc.line(ML,23,W-MR,23);
+  doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.setTextColor(...BK);doc.text('ADVOCATE  \u00b7  GAUHATI HIGH COURT',W/2,28,{align:'center'});
+  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(...DG);doc.text('Enrollment No. : 26 of 1997',W/2,33,{align:'center'});
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...BK);doc.text('CHAMBER : S.K JAIN & ASSOCIATES',W/2,38,{align:'center'});
+  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(...DG);doc.text('Bara Bazar Pandu, Jain Mandir Bye Lane, P.O. Pandu, Guwahati \u2013 781012',W/2,43,{align:'center'});
+  doc.setFillColor(...DK);doc.rect(ML-2,46,CW+4,10,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(...WH);doc.text('LEGAL INVOICE',W/2,53,{align:'center'});
+  const iY=56;doc.setDrawColor(...MG);doc.setLineWidth(0.3);doc.rect(ML-2,iY,CW+4,10);doc.line(W/2,iY,W/2,iY+10);
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...BK);doc.text('Invoice No.',ML+2,iY+4);doc.setFont('helvetica','normal');doc.text(invNo,ML+26,iY+4);
+  doc.setFont('helvetica','bold');doc.text('Date :',W/2+4,iY+4);doc.setFont('helvetica','normal');doc.text(dateD,W/2+18,iY+4);
+  const btY=iY+10;
+  const rls=refText?refText.split('\n').filter(l=>l.trim()):[];
+  const btH=Math.max(32,Math.max(14+(address?10:0),rls.length*5.5+12));
+  doc.setDrawColor(...MG);doc.rect(ML-2,btY,CW+4,btH);doc.line(W/2,btY,W/2,btY+btH);
+  doc.setFillColor(...LG);doc.rect(ML-2,btY,(CW+4)/2,7,'F');doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...BK);doc.text('Billed To',ML+1,btY+5);
+  doc.setFillColor(...LG);doc.rect(W/2,btY,(CW+4)/2,7,'F');doc.text('Reference',W/2+2,btY+5);
+  doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.setTextColor(...BK);doc.text(client,ML+2,btY+13);
+  if(address){doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(...DG);const al=doc.splitTextToSize(address,(CW/2)-6);doc.text(al,ML+2,btY+19);}
+  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(...BK);
+  rls.forEach((line,i)=>{const wl=doc.splitTextToSize(line.trim(),(CW/2)-6);doc.text(wl,W/2+2,btY+13+i*5.5);});
+  const sY=btY+btH+1;
+  doc.autoTable({startY:sY,head:[['Sl.','Description of Services','Amount (\u20b9)']],body:svcs.map(r=>[String(r.sl),r.desc,fmt(r.amt)]),margin:{left:ML-2,right:MR-2},tableWidth:CW+4,styles:{font:'helvetica',fontSize:8,cellPadding:{top:3.5,bottom:3.5,left:4,right:4},lineColor:MG,lineWidth:0.2,textColor:BK,valign:'top',overflow:'linebreak'},headStyles:{fillColor:DK,textColor:WH,fontStyle:'bold',fontSize:8,cellPadding:{top:4,bottom:4,left:4,right:4}},alternateRowStyles:{fillColor:[252,252,252]},columnStyles:{0:{halign:'center',cellWidth:12,fontStyle:'bold'},1:{cellWidth:'auto'},2:{halign:'right',cellWidth:30,fontStyle:'bold'}}});
+  const aT=doc.lastAutoTable.finalY,tX=W-MR-2,tW=65;let ty=aT;
+  doc.setFillColor(...LG);doc.setDrawColor(...MG);doc.setLineWidth(0.2);doc.rect(tX-tW,ty,tW,7,'FD');doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...BK);doc.text('Sub-Total',tX-tW+4,ty+5);doc.text(fmt(sub),tX-3,ty+5,{align:'right'});
+  ty+=7;doc.setFillColor(255,255,255);doc.rect(tX-tW,ty,tW,7,'FD');doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text('Advance Received',tX-tW+4,ty+5);doc.text(fmt(advVal),tX-3,ty+5,{align:'right'});
+  ty+=7;doc.setFillColor(...DK);doc.rect(tX-tW,ty,tW,8,'FD');doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(...WH);doc.text('Balance Due',tX-tW+4,ty+5.5);doc.text(fmt(bal),tX-3,ty+5.5,{align:'right'});ty+=8;doc.setTextColor(...BK);
+  const wY=ty+2;doc.setFillColor(...LG);doc.setDrawColor(...MG);doc.setLineWidth(0.2);doc.rect(ML-2,wY,CW+4,9,'FD');doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(...BK);doc.text('\u25a0 '+n2w(bal)+' (Balance Due)',ML+2,wY+5.5);
+  const bY2=wY+11,cW2=(CW+4)/3;
+  doc.setDrawColor(...MG);doc.setLineWidth(0.25);doc.rect(ML-2,bY2,CW+4,48);doc.line(ML-2+cW2,bY2,ML-2+cW2,bY2+48);doc.line(ML-2+cW2*2,bY2,ML-2+cW2*2,bY2+48);
+  doc.setFillColor(...BL);doc.rect(ML-2,bY2,cW2,7,'F');doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...WH);doc.text('BANK DETAILS',ML-2+cW2/2,bY2+5,{align:'center'});
+  let br=bY2+10;[['Bank','State Bank of India'],['Branch','Pan Bazar, Guwahati'],['A/C No.','10823998281'],['IFSC','SBIN0000078'],['UPI','bimaljain100@oksbi']].forEach(([l,v])=>{doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(...BG);doc.text(l,ML+1,br);doc.setFont('helvetica','normal');doc.setTextColor(...BK);doc.text(v,ML+14,br);br+=5.5;});
+  const qX=ML-2+cW2;doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(...BG);doc.text('Scan to Pay',qX+cW2/2,bY2+11,{align:'center'});
+  if(qr){const qs=28;doc.addImage(qr,'PNG',qX+(cW2-qs)/2,bY2+13,qs,qs);}else{doc.setFillColor(...LG);doc.setDrawColor(...MG);doc.setLineWidth(0.2);doc.rect(qX+8,bY2+13,28,28,'FD');doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(...DG);doc.text('QR Code',qX+cW2/2,bY2+29,{align:'center'});}
+  doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(...BK);doc.text('bimaljain100@oksbi',qX+cW2/2,bY2+44,{align:'center'});
+  const sX=ML-2+cW2*2;doc.setDrawColor(...MG);doc.setLineWidth(0.3);doc.line(sX+6,bY2+38,sX+cW2-6,bY2+38);doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...BK);doc.text('(BIMAL KUMAR JAIN)',sX+cW2/2,bY2+43,{align:'center'});doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(...DG);doc.text('Advocate, Gauhati High Court',sX+cW2/2,bY2+48,{align:'center'});doc.text('S.K Jain & Associates',sX+cW2/2,bY2+52.5,{align:'center'});
+  const fY2=H-8;doc.setDrawColor(...MG);doc.setLineWidth(0.3);doc.line(ML-2,fY2-3,W-MR+2,fY2-3);doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(...DG);doc.text('BIMAL KUMAR JAIN, M.COM, LLB  \u00b7  Advocate, Gauhati High Court  \u00b7  Cell: 98640-92418  \u00b7  bimaljain100@gmail.com  \u00b7  UPI: bimaljain100@oksbi',W/2,fY2,{align:'center'});
+  doc.save('SKJ_Invoice_'+invNo.replace(/\//g,'-')+'.pdf');
+}
+
+function dlLedgerPDF(){
+  const fv=document.getElementById('pdf-from').value,tv=document.getElementById('pdf-to').value;
+  if(!fv||!tv){alert('Please select both dates.');return;}if(fv>tv){alert('From date must be before To date.');return;}
+  const from=new Date(fv+'T00:00:00'),to=new Date(tv+'T23:59:59');
+  const fil=ledger.filter(e=>{const d=new Date(e.date+'T00:00:00');return d>=from&&d<=to;}).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const {jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight();
+  const G=[184,150,46],GL=[212,175,90],GF=[251,245,230],INK=[26,20,8],IS=[107,90,53],IM=[155,138,101],WH=[255,255,255],CR=[255,253,247],GB=[235,247,240],GF2=[42,122,74],RB=[251,240,240],RF=[184,48,48];
+  doc.setFillColor(...CR);doc.rect(0,0,W,H,'F');doc.setFillColor(...INK);doc.rect(0,0,W,46,'F');
+  for(let x=0;x<W;x++){const t=x/W;doc.setFillColor(Math.round(G[0]*(1-t)+GL[0]*t),Math.round(G[1]*(1-t)+GL[1]*t),Math.round(G[2]*(1-t)+GL[2]*t));doc.rect(x,0,1.2,2,'F');}
+  doc.setDrawColor(...G);doc.setLineWidth(0.3);doc.line(8,6,8,14);doc.line(8,6,16,6);doc.line(W-8,6,W-8,14);doc.line(W-8,6,W-16,6);
+  doc.setTextColor(240,224,176);doc.setFont('times','bold');doc.setFontSize(20);doc.text('B.K Jain & Associates',W/2,22,{align:'center'});
+  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(...G);doc.text('ADVOCATES & LEGAL CONSULTANTS',W/2,29,{align:'center'});
+  doc.setDrawColor(...G);doc.setLineWidth(0.4);doc.line(18,33,W-18,33);
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(212,175,90);doc.text('FEE LEDGER STATEMENT',W/2,40,{align:'center'});
+  const bY=54;doc.setFillColor(...GF);doc.setDrawColor(...G);doc.setLineWidth(0.3);doc.roundedRect(W/2-52,bY-5.5,104,10,2,2,'FD');
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(...IS);doc.text('Period: '+fmtD(fv)+' \u2014 '+fmtD(tv),W/2,bY+1,{align:'center'});
+  doc.setFontSize(7);doc.setTextColor(...IM);doc.text('Generated: '+new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}),W-14,bY+1,{align:'right'});
+  const tT=72;
+  if(!fil.length){doc.setFont('times','italic');doc.setFontSize(13);doc.setTextColor(...IM);doc.text('No transactions found for the selected date range.',W/2,tT+20,{align:'center'});}
+  else{
+    doc.autoTable({startY:tT,head:[['#','Date','Type','Particulars','Amount']],body:fil.map((e,i)=>[String(i+1),fmtD(e.date),e.type,e.particulars,(e.type==='Credit'?'+ ':'- ')+'Rs. '+fmt(e.amount)]),margin:{left:14,right:14},styles:{font:'helvetica',fontSize:9,cellPadding:{top:4,bottom:4,left:5,right:5},lineColor:[220,200,140],lineWidth:0.2,textColor:INK,fillColor:WH,valign:'middle'},headStyles:{fillColor:INK,textColor:[240,224,176],fontStyle:'bold',fontSize:8,halign:'left',cellPadding:{top:5,bottom:5,left:5,right:5}},alternateRowStyles:{fillColor:GF},columnStyles:{0:{halign:'center',cellWidth:10},1:{cellWidth:30},2:{cellWidth:20,halign:'center'},3:{cellWidth:'auto'},4:{halign:'right',cellWidth:36,fontStyle:'bold'}},didParseCell:function(d){if(d.section==='body'&&d.column.index===2){d.cell.styles.textColor=d.cell.raw==='Credit'?GF2:RF;d.cell.styles.fontStyle='bold';}if(d.section==='body'&&d.column.index===4){d.cell.styles.textColor=d.cell.raw.startsWith('+')?GF2:RF;}},didDrawPage:function(){const pg=doc.internal.getCurrentPageInfo().pageNumber,tot=doc.internal.getNumberOfPages();doc.setFillColor(...INK);doc.rect(0,H-14,W,14,'F');doc.setDrawColor(...G);doc.setLineWidth(0.3);doc.line(0,H-14,W,H-14);doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(...G);doc.text('B.K Jain & Associates \u2014 Confidential Legal Document',14,H-5.5);doc.setTextColor(240,224,176);doc.text('Page '+pg+' of '+tot,W-14,H-5.5,{align:'right'});}});
+    const fY3=doc.lastAutoTable.finalY+8,cr2=fil.filter(e=>e.type==='Credit').reduce((s,e)=>s+Number(e.amount),0),db3=fil.filter(e=>e.type==='Debit').reduce((s,e)=>s+Number(e.amount),0),net=cr2-db3,bW=(W-28)/3,bH=18;
+    doc.setFillColor(...GB);doc.setDrawColor(...GF2);doc.setLineWidth(0.3);doc.roundedRect(14,fY3,bW-3,bH,1.5,1.5,'FD');doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...IM);doc.text('TOTAL CREDITS',14+bW/2-1.5,fY3+5.5,{align:'center'});doc.setFontSize(12);doc.setTextColor(...GF2);doc.text('Rs. '+fmt(cr2),14+bW/2-1.5,fY3+13,{align:'center'});
+    const dX=14+bW;doc.setFillColor(...RB);doc.setDrawColor(...RF);doc.roundedRect(dX,fY3,bW-3,bH,1.5,1.5,'FD');doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...IM);doc.text('TOTAL DEBITS',dX+bW/2-1.5,fY3+5.5,{align:'center'});doc.setFontSize(12);doc.setTextColor(...RF);doc.text('Rs. '+fmt(db3),dX+bW/2-1.5,fY3+13,{align:'center'});
+    const nX=14+bW*2;doc.setFillColor(...GF);doc.setDrawColor(...G);doc.setLineWidth(0.4);doc.roundedRect(nX,fY3,bW-3,bH,1.5,1.5,'FD');doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...IM);doc.text('NET BALANCE',nX+bW/2-1.5,fY3+5.5,{align:'center'});doc.setFontSize(12);doc.setTextColor(...(net<0?RF:G));doc.text((net<0?'-':'')+'Rs. '+fmt(Math.abs(net)),nX+bW/2-1.5,fY3+13,{align:'center'});
+    doc.setGState(new doc.GState({opacity:0.04}));doc.setFont('times','bold');doc.setFontSize(64);doc.setTextColor(...G);doc.text('B.K JAIN',W/2,H/2+20,{align:'center',angle:35});doc.setGState(new doc.GState({opacity:1}));
+  }
+  doc.save('BKJain_Ledger_'+fv+'_to_'+tv+'.pdf');
+}
 </script>
 </body>
 </html>
