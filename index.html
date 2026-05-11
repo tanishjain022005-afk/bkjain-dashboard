@@ -662,6 +662,39 @@
 </head>
 <body>
 
+<script>
+  // ── EARLY INIT — runs before Firebase, ensures button always works ──
+  function showScreen(id) {
+    ['landing','auth-screen','loading-screen'].forEach(function(s) {
+      var el = document.getElementById(s);
+      if (el) { el.style.display = 'none'; el.classList.add('hidden'); }
+    });
+    var app = document.getElementById('app');
+    if (app) app.style.display = 'none';
+    if (id === 'app') {
+      if (app) app.style.display = 'flex';
+    } else {
+      var el = document.getElementById(id);
+      if (el) { el.style.display = 'flex'; el.classList.remove('hidden'); }
+    }
+  }
+  function goToAuth() {
+    var landing = document.getElementById('landing');
+    if (landing) {
+      landing.style.opacity = '0';
+      landing.style.transform = 'translateY(-24px)';
+      landing.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
+      landing.style.pointerEvents = 'none';
+    }
+    setTimeout(function() { showScreen('auth-screen'); }, 700);
+  }
+  window._firebaseReady = false;
+  window.addEventListener('error', function(e) {
+    console.error('Page error:', e.message);
+  });
+</script>
+
+
 <!-- ════ LANDING ════ -->
 <div id="landing" class="screen">
   <div class="landing-corner lc-tl"></div>
@@ -1060,9 +1093,17 @@
       '⚠ Firebase not configured yet. Follow the setup instructions.';
   }
 
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db   = firebase.firestore();
+  let auth, db;
+  try {
+    firebase.initializeApp(firebaseConfig);
+    auth = firebase.auth();
+    db   = firebase.firestore();
+    window._firebaseReady = true;
+  } catch(e) {
+    console.error('Firebase init failed:', e);
+    document.getElementById('auth-error').textContent =
+      '⚠ Connection error. Please refresh the page and try again. (' + e.message + ')';
+  }
 
   // ── DATA ──
   let ledger   = [];
@@ -1071,33 +1112,44 @@
   let currentUser = null;
   let saveTimer;
 
-  // ── SCREEN HELPERS ──
-  function showScreen(id) {
+  // ── SCREEN HELPERS — defined earlier in page head, overriding here with full version ──
+  window._showScreen = showScreen; // keep reference
+  showScreen = function(id) {
     ['landing','auth-screen','loading-screen'].forEach(s => {
       const el = document.getElementById(s);
-      if (el) el.classList.add('hidden');
+      if (el) { el.style.display = 'none'; el.classList.add('hidden'); }
     });
     document.getElementById('app').style.display = 'none';
     if (id === 'app') {
       document.getElementById('app').style.display = 'flex';
     } else {
       const el = document.getElementById(id);
-      if (el) el.classList.remove('hidden');
+      if (el) { el.style.display = 'flex'; el.classList.remove('hidden'); }
     }
-  }
+  };
 
   // ── LANDING → AUTH ──
-  function goToAuth() {
+  goToAuth = function() {
     const landing = document.getElementById('landing');
-    landing.classList.add('exit');
+    if (landing) {
+      landing.style.opacity = '0';
+      landing.style.transform = 'translateY(-24px)';
+      landing.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
+      landing.style.pointerEvents = 'none';
+    }
     setTimeout(() => showScreen('auth-screen'), 700);
-  }
+  };
 
   // ── GOOGLE SIGN-IN ──
   function signInWithGoogle() {
     if (!configReady) {
       document.getElementById('auth-error').textContent =
         '⚠ Please configure Firebase first. See the setup guide below.';
+      return;
+    }
+    if (!auth) {
+      document.getElementById('auth-error').textContent =
+        '⚠ Firebase not loaded. Please refresh and try again.';
       return;
     }
     const btn = document.getElementById('google-btn');
@@ -1128,7 +1180,7 @@
   }
 
   // ── AUTH STATE LISTENER ──
-  auth.onAuthStateChanged(async user => {
+  if (auth) auth.onAuthStateChanged(async user => {
     if (user) {
       currentUser = user;
       showScreen('loading-screen');
