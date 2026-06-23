@@ -861,17 +861,17 @@ async function genInvoicePDF(){
   // Sub-Total
   doc.setFillColor(...LG);doc.setDrawColor(...MG);doc.setLineWidth(0.2);doc.rect(tX-tW,ty,tW,8,'FD');
   doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.setTextColor(...BK);
-  doc.text('Sub-Total',tX-tW+5,ty+5.5);doc.text('₹. '+fmt(sub),tX-4,ty+5.5,{align:'right'});
+  doc.text('Sub-Total',tX-tW+5,ty+5.5);doc.text('Rs. '+fmt(sub),tX-4,ty+5.5,{align:'right'});
   ty+=8;
   // Advance
   doc.setFillColor(255,255,255);doc.rect(tX-tW,ty,tW,8,'FD');
   doc.setFont('helvetica','normal');doc.setFontSize(8.5);
-  doc.text('Advance Received',tX-tW+5,ty+5.5);doc.text('₹. '+fmt(advVal),tX-4,ty+5.5,{align:'right'});
+  doc.text('Advance Received',tX-tW+5,ty+5.5);doc.text('Rs. '+fmt(advVal),tX-4,ty+5.5,{align:'right'});
   ty+=8;
   // Balance Due
   doc.setFillColor(...DK);doc.rect(tX-tW,ty,tW,9,'F');
   doc.setFont('helvetica','bold');doc.setFontSize(9.5);doc.setTextColor(...WH);
-  doc.text('Balance Due',tX-tW+5,ty+6);doc.text('₹. '+fmt(bal),tX-4,ty+6,{align:'right'});
+  doc.text('Balance Due',tX-tW+5,ty+6);doc.text('Rs. '+fmt(bal),tX-4,ty+6,{align:'right'});
   ty+=9;doc.setTextColor(...BK);
 
   // ── AMOUNT IN WORDS ──
