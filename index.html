@@ -848,7 +848,7 @@ async function genInvoicePDF(){
   doc.autoTable({
     startY:sY,
     head:[['Sl.','Description of Services','Amount (Rs.)']],
-    body:svcs.map(r=>[String(r.sl),r.desc,'₹. '+fmt(r.amt)]),
+    body:svcs.map(r=>[String(r.sl),r.desc,'Rs. '+fmt(r.amt)]),
     margin:{left:ML-2,right:MR-2},tableWidth:CW+4,
     styles:{font:'helvetica',fontSize:8,cellPadding:{top:4,bottom:4,left:4,right:4},lineColor:MG,lineWidth:0.2,textColor:BK,valign:'top',overflow:'linebreak'},
     headStyles:{fillColor:DK,textColor:WH,fontStyle:'bold',fontSize:8.5,cellPadding:{top:4.5,bottom:4.5,left:4,right:4}},
