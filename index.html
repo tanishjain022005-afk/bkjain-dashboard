@@ -199,6 +199,8 @@ td{padding:11px 14px;color:var(--ink-mid);vertical-align:middle;}
 .emp-actions{display:flex;align-items:center;gap:12px;flex-shrink:0;}
 .emp-tot-badge{font-family:var(--font-d);font-size:15px;color:var(--gold);font-weight:700;white-space:nowrap;}
 .emp-pdf-bar{margin:0 22px 22px;border-radius:var(--rs);}
+.emp-mcards{display:none;}
+.emp-tbar{margin:0 22px 18px;}
 .toast{position:fixed;bottom:20px;right:20px;background:var(--ink);color:var(--gold-pale);font-size:11px;letter-spacing:0.1em;padding:8px 16px;border-radius:100px;border:1px solid rgba(184,150,46,0.2);opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:300;}
 .toast.show{opacity:1;}
 .inv-prev{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px 16px;text-align:center;margin-bottom:18px;box-shadow:var(--sh-sm);position:relative;overflow:hidden;}
@@ -269,11 +271,29 @@ td{padding:11px 14px;color:var(--ink-mid);vertical-align:middle;}
   .toast{bottom:73px;right:12px;}
   .inv-prev{padding:14px 12px;}.inv-name{font-size:19px;}
   .inv-tots{max-width:100%;}.b-inv{font-size:12px;padding:13px;}
-  .svc-ai{width:80px;}
+  /* keep small header buttons (e.g. "+ Add Row") compact instead of full-width */
+  .ph{gap:10px;}
+  .ph .bp{width:auto;display:inline-flex;align-items:center;white-space:nowrap;flex-shrink:0;padding:9px 14px;}
+  /* invoice services: show as clean stacked cards (the table is hidden on mobile) */
+  .tw table.svc-tbl{display:block;min-width:0;padding:11px 11px 1px;}
+  .svc-tbl thead{display:none;}
+  .svc-tbl tbody{display:block;}
+  .svc-tbl tbody tr{display:block;position:relative;border:1px solid var(--border);border-radius:10px;padding:12px 12px 13px;margin-bottom:10px;background:var(--cream);}
+  .svc-tbl tbody tr:nth-child(even){background:var(--cream);}
+  .svc-tbl td{display:block;padding:0;}
+  .svc-tbl td.svc-sl{text-align:left;width:auto;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;margin-bottom:9px;}
+  .svc-tbl td.svc-sl::before{content:"Item ";}
+  .svc-di{width:100%;font-size:15px;padding:11px 12px;background:var(--white);border:1px solid var(--border);border-radius:8px;margin-bottom:11px;}
+  .svc-tbl td:nth-child(3){text-align:left!important;}
+  .svc-tbl td:nth-child(3)::before{content:"Amount (Rs.)";display:block;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-muted);font-weight:700;margin-bottom:6px;}
+  .svc-ai{width:100%!important;height:46px;font-size:16px;}
+  .svc-tbl td:nth-child(4){position:absolute;top:10px;right:11px;}
   .emp-name-input{font-size:15px;max-width:100%;}
   .emp-ph-row{min-width:100%;}
   .emp-actions{width:100%;justify-content:space-between;}
   .emp-pdf-bar{margin:0 12px 12px;}
+  .emp-mcards{display:block;padding:0 12px 4px;}
+  .emp-tbar{margin:0 12px 12px;}
   .lc{width:32px;height:32px;}.lc-tl{top:13px;left:13px;}.lc-tr{top:13px;right:13px;}
   .lc-bl{bottom:13px;left:13px;}.lc-br{bottom:13px;right:13px;}
   .a-card{padding:30px 18px;}.a-head{font-size:24px;}
@@ -332,7 +352,7 @@ td{padding:11px 14px;color:var(--ink-mid);vertical-align:middle;}
   <nav class="m-nav">
     <div class="mn-item active" id="mn-d" onclick="navTo('dashboard','mn-d','Overview')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>Home</div>
     <div class="mn-item" id="mn-l" onclick="navTo('ledger','mn-l','Fee Ledger')"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h10M4 18h7"/></svg>Ledger</div>
-    <div class="mn-item" id="mn-e" onclick="navTo('employees','mn-e','Employees')"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Employees</div>
+    <div class="mn-item" id="mn-e" onclick="navTo('employees','mn-e','Juniors')"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Juniors</div>
     <div class="mn-item" id="mn-i" onclick="navTo('invoice','mn-i','Invoice')"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Invoice</div>
     <div class="mn-item mn-so" onclick="doSignOut()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Out</div>
   </nav>
@@ -343,7 +363,7 @@ td{padding:11px 14px;color:var(--ink-mid);vertical-align:middle;}
         <div class="sb-lbl">Menu</div>
         <div class="ni active" onclick="showPage('dashboard',this)"><svg class="ni-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</div>
         <div class="ni" onclick="showPage('ledger',this)"><svg class="ni-icon" viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h10M4 18h7"/></svg>Ledger</div>
-        <div class="ni" onclick="showPage('employees',this)"><svg class="ni-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Employee's Data</div>
+        <div class="ni" onclick="showPage('employees',this)"><svg class="ni-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Junior Advocates</div>
         <div class="ni" onclick="showPage('invoice',this)"><svg class="ni-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Invoice</div>
       </nav>
       <div class="sb-u">
@@ -424,18 +444,18 @@ td{padding:11px 14px;color:var(--ink-mid);vertical-align:middle;}
       </div>
 
       <div class="page" id="page-employees">
-        <div class="sh"><div class="sh-eye">Finance</div><div class="sh-title">Employee's Data</div><div class="sh-rule"></div></div>
+        <div class="sh"><div class="sh-eye">Chamber</div><div class="sh-title">Junior Advocates</div><div class="sh-rule"></div></div>
         <div class="panel" style="margin-bottom:18px;">
-          <div class="ph"><div class="ph-title">Add Employee</div></div>
+          <div class="ph"><div class="ph-title">Add Junior Advocate</div></div>
           <div class="pb">
             <div class="fr" style="grid-template-columns:1fr auto;">
-              <div class="fg"><label class="fl">Employee Name</label><input type="text" class="fi" id="emp-new-name" placeholder="e.g. Employee 1" onkeydown="if(event.key==='Enter')addEmployee()"></div>
-              <button class="bp" onclick="addEmployee()" style="height:40px;align-self:end;">+ Add Employee</button>
+              <div class="fg"><label class="fl">Advocate Name</label><input type="text" class="fi" id="emp-new-name" placeholder="e.g. Adv. Simanta Talukdar" onkeydown="if(event.key==='Enter')addEmployee()"></div>
+              <button class="bp" onclick="addEmployee()" style="height:40px;align-self:end;">+ Add Advocate</button>
             </div>
           </div>
         </div>
         <div id="emp-grid"></div>
-        <div id="emp-empty" class="empty" style="display:none;"><div class="ei2">&#128101;</div><div class="et">No employees added yet</div><div class="es">Add your first employee above to start recording their expenses</div></div>
+        <div id="emp-empty" class="empty" style="display:none;"><div class="ei2">&#128101;</div><div class="et">No junior advocates added yet</div><div class="es">Add your first junior advocate above to start recording their account</div></div>
       </div>
 
       <div class="page" id="page-invoice">
@@ -647,8 +667,8 @@ document.getElementById('pdf-from').value=fm.toISOString().split('T')[0];
 document.getElementById('pdf-to').value=today;
 
 // ── NAV ──
-const TITLES={dashboard:'Dashboard',ledger:'Fee Ledger',employees:"Employee's Data",invoice:'Invoice Generator'};
-const MLBLS={dashboard:'Overview',ledger:'Fee Ledger',employees:'Employees',invoice:'Invoice'};
+const TITLES={dashboard:'Dashboard',ledger:'Fee Ledger',employees:'Junior Advocates',invoice:'Invoice Generator'};
+const MLBLS={dashboard:'Overview',ledger:'Fee Ledger',employees:'Junior Advocates',invoice:'Invoice'};
 function showPage(id,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
@@ -669,7 +689,7 @@ const fmtD=d=>new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',
 function renderDash(){
   const inc=ledger.filter(e=>e.type==='Credit').reduce((s,e)=>s+Number(e.amount),0);
   const deb=ledger.filter(e=>e.type==='Debit').reduce((s,e)=>s+Number(e.amount),0);
-  const exp=employees.reduce((s,emp)=>s+(emp.items||[]).reduce((s2,it)=>s2+Number(it.amount),0),0);
+  const exp=employees.reduce((s,emp)=>s+empDb(emp),0);
   document.getElementById('s-inc').textContent=fmt(inc);
   document.getElementById('s-exp').textContent=fmt(exp);
   document.getElementById('s-pnd').textContent=fmt(deb);
@@ -723,7 +743,7 @@ function renderLedger(){
 // ── EMPLOYEE'S DATA ──
 function addEmployee(){
   const nameInput=document.getElementById('emp-new-name');
-  const name=nameInput.value.trim()||('Employee '+(employees.length+1));
+  const name=nameInput.value.trim()||('Advocate '+(employees.length+1));
   employees.push({id:Date.now(),name,items:[]});
   nameInput.value='';save();renderEmployees();renderDash();
 }
@@ -733,16 +753,17 @@ function renameEmployee(id,val){
 }
 function delEmployee(id){
   const emp=employees.find(e=>e.id===id);if(!emp)return;
-  if(!confirm('Remove "'+emp.name+'" and all their recorded expenses? This cannot be undone.'))return;
+  if(!confirm('Remove "'+emp.name+'" and all their recorded entries? This cannot be undone.'))return;
   employees=employees.filter(e=>e.id!==id);save();renderEmployees();renderDash();
 }
 function addEmpItem(id){
   const emp=employees.find(e=>e.id===id);if(!emp)return;
   const d=document.getElementById('emp-date-'+id).value;
+  const ty=document.getElementById('emp-type-'+id).value;
   const a=parseFloat(document.getElementById('emp-amt-'+id).value);
   const n=document.getElementById('emp-desc-'+id).value.trim();
   if(!d||isNaN(a)||a<=0){alert('Please enter a valid date and amount.');return;}
-  emp.items=emp.items||[];emp.items.push({id:Date.now(),date:d,amount:a,desc:n||'—'});
+  emp.items=emp.items||[];emp.items.push({id:Date.now(),date:d,type:ty==='Credit'?'Credit':'Debit',amount:a,desc:n||'—'});
   save();renderEmployees();renderDash();
 }
 function delEmpItem(empId,itemId){
@@ -750,7 +771,10 @@ function delEmpItem(empId,itemId){
   emp.items=(emp.items||[]).filter(it=>it.id!==itemId);
   save();renderEmployees();renderDash();
 }
-function empTotal(emp){return (emp.items||[]).reduce((s,it)=>s+Number(it.amount),0);}
+function itType(it){return it.type==='Credit'?'Credit':'Debit';}
+function empCr(emp){return (emp.items||[]).filter(it=>itType(it)==='Credit').reduce((s,it)=>s+Number(it.amount),0);}
+function empDb(emp){return (emp.items||[]).filter(it=>itType(it)==='Debit').reduce((s,it)=>s+Number(it.amount),0);}
+function empNet(emp){return empCr(emp)-empDb(emp);}
 function renderEmployees(){
   const grid=document.getElementById('emp-grid'),empty=document.getElementById('emp-empty');
   if(!grid)return;
@@ -764,28 +788,37 @@ function renderEmployees(){
   if(empty)empty.style.display='none';
   grid.innerHTML=employees.map(emp=>{
     const items=[...(emp.items||[])].sort((a,b)=>new Date(b.date)-new Date(a.date));
-    const rows=items.map(it=>`<tr><td>${fmtD(it.date)}</td><td>${it.desc}</td><td style="text-align:right;font-weight:600;">Rs. ${fmt(it.amount)}</td><td><button class="db" onclick="delEmpItem(${emp.id},${it.id})">x</button></td></tr>`).join('');
+    const rows=items.map(it=>{const ty=itType(it);return`<tr><td>${fmtD(it.date)}</td><td><span class="tbg ${ty==='Credit'?'bcr':'bdb'}">${ty}</span></td><td>${it.desc}</td><td class="${ty==='Credit'?'tcr':'tdb'}" style="text-align:right;font-weight:600;">Rs. ${fmt(it.amount)}</td><td><button class="db" onclick="delEmpItem(${emp.id},${it.id})">x</button></td></tr>`;}).join('');
+    const mcards=items.map(it=>{const ty=itType(it);return`<div class="lmc"><div class="lmc-b"><div class="lmc-p">${it.desc}</div><div class="lmc-d">${fmtD(it.date)} &middot; <span class="tbg ${ty==='Credit'?'bcr':'bdb'}" style="font-size:9px;">${ty}</span></div></div><div class="lmc-r"><div class="lmc-a ${ty==='Credit'?'tcr':'tdb'}">Rs.${fmt(it.amount)}</div><button class="db" onclick="delEmpItem(${emp.id},${it.id})">x</button></div></div>`;}).join('');
+    const cr=empCr(emp),db4=empDb(emp),net=cr-db4;
     const pr=prevRanges[emp.id];
     const fromV=(pr&&pr.from)?pr.from:fm.toISOString().split('T')[0];
     const toV=(pr&&pr.to)?pr.to:today;
     const safeName=String(emp.name).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
     return`<div class="panel emp-card" style="margin-bottom:18px;">
       <div class="ph emp-ph">
-        <div class="emp-ph-row"><input type="text" class="emp-name-input" value="${safeName}" onchange="renameEmployee(${emp.id},this.value)" onkeydown="if(event.key==='Enter')this.blur()" placeholder="Employee name"></div>
-        <div class="emp-actions"><div class="emp-tot-badge">Rs. ${fmt(empTotal(emp))}</div><button class="db" onclick="delEmployee(${emp.id})" title="Remove employee">x</button></div>
+        <div class="emp-ph-row"><input type="text" class="emp-name-input" value="${safeName}" onchange="renameEmployee(${emp.id},this.value)" onkeydown="if(event.key==='Enter')this.blur()" placeholder="Advocate name"></div>
+        <div class="emp-actions"><div class="emp-tot-badge">Net:&nbsp;<span style="color:${net<0?'#B83030':'var(--gold)'};">${net<0?'-':''}Rs. ${fmt(Math.abs(net))}</span></div><button class="db" onclick="delEmployee(${emp.id})" title="Remove advocate">x</button></div>
       </div>
       <div class="pb">
         <div class="fr">
           <div class="fg"><label class="fl">Date</label><input type="date" class="fi" id="emp-date-${emp.id}" value="${today}"></div>
+          <div class="fg"><label class="fl">Type</label><select class="fs" id="emp-type-${emp.id}"><option value="Credit">Credit</option><option value="Debit" selected>Debit</option></select></div>
           <div class="fg"><label class="fl">Amount (Rs.)</label><input type="number" class="fi" id="emp-amt-${emp.id}" placeholder="0"></div>
-          <div class="fg"><label class="fl">Description</label><input type="text" class="fi" id="emp-desc-${emp.id}" placeholder="e.g. Travel advance"></div>
+          <div class="fg"><label class="fl">Particulars</label><input type="text" class="fi" id="emp-desc-${emp.id}" placeholder="e.g. Salary advance"></div>
         </div>
-        <button class="bp" onclick="addEmpItem(${emp.id})">Add Expense</button>
+        <button class="bp" onclick="addEmpItem(${emp.id})">Add Entry</button>
       </div>
       <div class="pb" style="padding-top:0;">
-        <div class="tw"><table><thead><tr><th>Date</th><th>Description</th><th style="text-align:right;">Amount</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
-        ${items.length?'':'<div class="empty" style="padding:22px 0;"><div class="ei2">&#128179;</div><div class="et">No entries yet</div><div class="es">Record an expense above</div></div>'}
+        <div class="tw"><table><thead><tr><th>Date</th><th>Type</th><th>Particulars</th><th style="text-align:right;">Amount</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+        <div class="emp-mcards">${mcards}</div>
+        ${items.length?'':'<div class="empty" style="padding:22px 0;"><div class="ei2">&#128179;</div><div class="et">No entries yet</div><div class="es">Record an entry above</div></div>'}
       </div>
+      ${items.length?`<div class="tbar emp-tbar">
+        <div class="tc"><div class="tc-l">Total Credits</div><div class="tc-v vcr">Rs. ${fmt(cr)}</div></div>
+        <div class="tc"><div class="tc-l">Total Debits</div><div class="tc-v vdb">Rs. ${fmt(db4)}</div></div>
+        <div class="tc" style="flex:1;"><div class="tc-l">Net Balance</div><div class="tc-v" style="color:${net<0?'#B83030':'var(--gold)'};">${net<0?'-':''}Rs. ${fmt(Math.abs(net))}</div></div>
+      </div>`:''}
       <div class="pdf-bar emp-pdf-bar">
         <div class="pbi"><div class="pbl">Export</div><div class="pbt">${safeName}'s Statement</div><div class="pbs">Filter by date &amp; export as PDF</div></div>
         <div class="pdf-fs">
@@ -1061,28 +1094,27 @@ function dlEmpPDF(id){
   const fil=(emp.items||[]).filter(e=>{const d=new Date(e.date+'T00:00:00');return d>=from&&d<=to;}).sort((a,b)=>new Date(a.date)-new Date(b.date));
   const {jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   const W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight();
-  const G=[184,150,46],GL=[212,175,90],GF=[251,245,230],INK=[26,20,8],IS=[107,90,53],IM=[155,138,101],WH=[255,255,255],CR=[255,253,247];
+  const G=[184,150,46],GL=[212,175,90],GF=[251,245,230],INK=[26,20,8],IS=[107,90,53],IM=[155,138,101],WH=[255,255,255],CR=[255,253,247],GB=[235,247,240],GF2=[42,122,74],RB=[251,240,240],RF=[184,48,48];
   doc.setFillColor(...CR);doc.rect(0,0,W,H,'F');doc.setFillColor(...INK);doc.rect(0,0,W,46,'F');
   for(let x=0;x<W;x++){const t=x/W;doc.setFillColor(Math.round(G[0]*(1-t)+GL[0]*t),Math.round(G[1]*(1-t)+GL[1]*t),Math.round(G[2]*(1-t)+GL[2]*t));doc.rect(x,0,1.2,2,'F');}
   doc.setDrawColor(...G);doc.setLineWidth(0.3);doc.line(8,6,8,14);doc.line(8,6,16,6);doc.line(W-8,6,W-8,14);doc.line(W-8,6,W-16,6);
   doc.setTextColor(240,224,176);doc.setFont('times','bold');doc.setFontSize(20);doc.text('B.K Jain & Associates',W/2,22,{align:'center'});
   doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(...G);doc.text('ADVOCATES & LEGAL CONSULTANTS',W/2,29,{align:'center'});
   doc.setDrawColor(...G);doc.setLineWidth(0.4);doc.line(18,33,W-18,33);
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(212,175,90);doc.text('EMPLOYEE EXPENSE STATEMENT',W/2,40,{align:'center'});
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(212,175,90);doc.text('JUNIOR ADVOCATE - ACCOUNT STATEMENT',W/2,40,{align:'center'});
   const bY2=54;doc.setFillColor(...GF);doc.setDrawColor(...G);doc.setLineWidth(0.3);doc.roundedRect(14,bY2-5.5,W-28,10,2,2,'FD');
   doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.setTextColor(...INK);
-  const empNameLine=doc.splitTextToSize('Employee: '+emp.name,(W-28)*0.6);
+  const empNameLine=doc.splitTextToSize('Advocate: '+emp.name,(W-28)*0.6);
   doc.text(empNameLine[0],18,bY2+1);
   doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(...IS);doc.text('Period: '+fmtD(fv)+' - '+fmtD(tv),W-18,bY2+1,{align:'right'});
   const tT=72;
   if(!fil.length){doc.setFont('times','italic');doc.setFontSize(13);doc.setTextColor(...IM);doc.text('No entries found for the selected period.',W/2,tT+20,{align:'center'});}
   else{
-    doc.autoTable({startY:tT,head:[['#','Date','Description','Amount']],body:fil.map((e,i)=>[String(i+1),fmtD(e.date),e.desc,'Rs. '+fmt(e.amount)]),margin:{left:14,right:14},styles:{font:'helvetica',fontSize:9,cellPadding:{top:4,bottom:4,left:5,right:5},lineColor:[220,200,140],lineWidth:0.2,textColor:INK,fillColor:WH,valign:'top',overflow:'linebreak'},headStyles:{fillColor:INK,textColor:[240,224,176],fontStyle:'bold',fontSize:8,halign:'left',cellPadding:{top:5,bottom:5,left:5,right:5}},alternateRowStyles:{fillColor:GF},columnStyles:{0:{halign:'center',cellWidth:10},1:{cellWidth:28},2:{cellWidth:'auto'},3:{halign:'right',cellWidth:34,fontStyle:'bold'}},didDrawPage:function(){const pg=doc.internal.getCurrentPageInfo().pageNumber,tot=doc.internal.getNumberOfPages();doc.setFillColor(...INK);doc.rect(0,H-14,W,14,'F');doc.setDrawColor(...G);doc.setLineWidth(0.3);doc.line(0,H-14,W,H-14);doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(...G);doc.text('B.K Jain & Associates - Confidential',14,H-5.5);doc.setTextColor(240,224,176);doc.text('Page '+pg+' of '+tot,W-14,H-5.5,{align:'right'});}});
-    const fY3=doc.lastAutoTable.finalY+8,total=fil.reduce((s,e)=>s+Number(e.amount),0),bW=W-28,bH2=18;
-    doc.setFillColor(...GF);doc.setDrawColor(...G);doc.setLineWidth(0.4);doc.roundedRect(14,fY3,bW,bH2,1.5,1.5,'FD');
-    doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(...IM);
-    doc.text('TOTAL AMOUNT  ('+fil.length+' entr'+(fil.length===1?'y':'ies')+')',14+bW/2,fY3+6,{align:'center'});
-    doc.setFontSize(13);doc.setTextColor(...G);doc.text('Rs. '+fmt(total),14+bW/2,fY3+14,{align:'center'});
+    doc.autoTable({startY:tT,head:[['#','Date','Type','Particulars','Amount']],body:fil.map((e,i)=>{const ty=e.type==='Credit'?'Credit':'Debit';return[String(i+1),fmtD(e.date),ty,e.desc,(ty==='Credit'?'+  Rs. ':'-  Rs. ')+fmt(e.amount)];}),margin:{left:14,right:14},styles:{font:'helvetica',fontSize:9,cellPadding:{top:4,bottom:4,left:5,right:5},lineColor:[220,200,140],lineWidth:0.2,textColor:INK,fillColor:WH,valign:'top',overflow:'linebreak'},headStyles:{fillColor:INK,textColor:[240,224,176],fontStyle:'bold',fontSize:8,halign:'left',cellPadding:{top:5,bottom:5,left:5,right:5}},alternateRowStyles:{fillColor:GF},columnStyles:{0:{halign:'center',cellWidth:10},1:{cellWidth:28},2:{cellWidth:20,halign:'center'},3:{cellWidth:'auto'},4:{halign:'right',cellWidth:36,fontStyle:'bold'}},didParseCell:function(d){if(d.section==='body'&&d.column.index===2){d.cell.styles.textColor=d.cell.raw==='Credit'?GF2:RF;d.cell.styles.fontStyle='bold';}if(d.section==='body'&&d.column.index===4){d.cell.styles.textColor=d.cell.raw.startsWith('+')?GF2:RF;}},didDrawPage:function(){const pg=doc.internal.getCurrentPageInfo().pageNumber,tot=doc.internal.getNumberOfPages();doc.setFillColor(...INK);doc.rect(0,H-14,W,14,'F');doc.setDrawColor(...G);doc.setLineWidth(0.3);doc.line(0,H-14,W,H-14);doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(...G);doc.text('B.K Jain & Associates - Confidential',14,H-5.5);doc.setTextColor(240,224,176);doc.text('Page '+pg+' of '+tot,W-14,H-5.5,{align:'right'});}});
+    const fY3=doc.lastAutoTable.finalY+8,cr2=fil.filter(e=>e.type==='Credit').reduce((s,e)=>s+Number(e.amount),0),db3=fil.filter(e=>e.type!=='Credit').reduce((s,e)=>s+Number(e.amount),0),net=cr2-db3,bW=(W-28)/3,bH2=18;
+    doc.setFillColor(...GB);doc.setDrawColor(...GF2);doc.setLineWidth(0.3);doc.roundedRect(14,fY3,bW-3,bH2,1.5,1.5,'FD');doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...IM);doc.text('TOTAL CREDITS',14+bW/2-1.5,fY3+5.5,{align:'center'});doc.setFontSize(12);doc.setTextColor(...GF2);doc.text('Rs. '+fmt(cr2),14+bW/2-1.5,fY3+13,{align:'center'});
+    const dX=14+bW;doc.setFillColor(...RB);doc.setDrawColor(...RF);doc.roundedRect(dX,fY3,bW-3,bH2,1.5,1.5,'FD');doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...IM);doc.text('TOTAL DEBITS',dX+bW/2-1.5,fY3+5.5,{align:'center'});doc.setFontSize(12);doc.setTextColor(...RF);doc.text('Rs. '+fmt(db3),dX+bW/2-1.5,fY3+13,{align:'center'});
+    const nX=14+bW*2;doc.setFillColor(...GF);doc.setDrawColor(...G);doc.setLineWidth(0.4);doc.roundedRect(nX,fY3,bW-3,bH2,1.5,1.5,'FD');doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...IM);doc.text('NET BALANCE',nX+bW/2-1.5,fY3+5.5,{align:'center'});doc.setFontSize(12);doc.setTextColor(...(net<0?RF:G));doc.text((net<0?'-':'')+'Rs. '+fmt(Math.abs(net)),nX+bW/2-1.5,fY3+13,{align:'center'});
   }
   doc.save('BKJain_'+emp.name.replace(/[^a-zA-Z0-9]+/g,'_')+'_'+fv+'_to_'+tv+'.pdf');
 }
